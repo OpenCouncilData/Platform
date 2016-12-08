@@ -1,0 +1,24 @@
+.featureinfo {
+    padding:1em;
+    width: 100%;
+    min-height:50px;
+}
+
+.prop-key {
+    font-family: 'Courier New';
+    background: hsl(240,50%,95%);
+    margin:6px;
+    color:black;
+}
+
+.prop-value {
+    margin-right:12px;
+    font-size: 11px;
+}
+
+.feature-count {
+    padding:1em;
+    width: 100%;
+    min-height:50px;
+    background:hsl(220,50%,90%);
+}
