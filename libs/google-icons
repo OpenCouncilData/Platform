@@ -1,0 +1,11 @@
+--2016-12-09 12:15:26--  https://fonts.googleapis.com/icon?family=Material+Icons
+Resolving fonts.googleapis.com... 216.58.220.138, 2404:6800:4006:806::200a
+Connecting to fonts.googleapis.com|216.58.220.138|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/css]
+Saving to: 'icon?family=Material+Icons'
+
+     0K                                                        10.4M=0s
+
+2016-12-09 12:15:27 (10.4 MB/s) - 'icon?family=Material+Icons' saved [546]
+

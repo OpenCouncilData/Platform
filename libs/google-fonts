@@ -1,0 +1,11 @@
+--2016-12-09 12:14:55--  https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en
+Resolving fonts.googleapis.com... 216.58.220.138, 2404:6800:4006:806::200a
+Connecting to fonts.googleapis.com|216.58.220.138|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/css]
+Saving to: 'css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en'
+
+     0K .                                                       403K=0.005s
+
+2016-12-09 12:14:56 (403 KB/s) - 'css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en' saved [1962]
+
