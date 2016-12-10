@@ -1,7 +1,14 @@
+.preview-map {
+    width: 600px; 
+    height: 450px !important; /* override MDL */
+    float:left;
+    margin-left: 20px; /* Can be hard to scroll down page otherwise */
+}
 .featureinfo {
     padding:1em;
-    width: 100%;
+    width: 100px;
     min-height:50px;
+    float:left;
 }
 
 .prop-key {
@@ -19,12 +26,7 @@
 .feature-count {
     padding:1em;
     width: 100%;
-    min-height:50px;
+    height: 450px;
     background:hsl(220,50%,90%);
-}
-
-
-.preview-map {
-    width: 80%; 
-    height: 450px !important; /* override MDL */
+    overflow: scroll;
 }

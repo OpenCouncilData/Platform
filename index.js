@@ -12,12 +12,14 @@ function makeMap(topic, mapid) {
     });
 
     function propsToFeatureDesc(props) {
-        var desc ='';
+        var desc ='<table>';
         Object.keys(props).forEach(function(key) {
-            desc += '<span class="prop-key">' + key + '</span>';
-            desc += '<span class="prop-value">' + props[key] + '</span> ';
+            if (key !== 'openCouncilDataTopic') {
+                desc += '<tr><td class="prop-key">' + key + '</td>';
+                desc += '<td class="prop-value">' + props[key] + '</td></tr> ';
+            }
         });
-        return desc;
+        return desc + '</table>';
     }
 
     map.on('mousemove', function(e) {
@@ -46,8 +48,10 @@ function topicHtml(topicname) {
 /*    '  <div class="mdl-card__actions">' + 
     '    <a href="#" class="mdl-button">Map preview</a>' + 
     '  </div>' + */
-    '  <div id="' + topic + '-map" class="preview-map"></div>' + 
+    '<div>' + // so that features sit alongside map
+    '<div id="' + topic + '-map" class="preview-map "></div>' + 
     '<div id="' + topic + '-featureinfo" class="featureinfo"></div>    ' + 
+    '</div>' +
     '<div class="' + topic + ' feature-count">' +
     '<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">' +
     '<thead>' +
