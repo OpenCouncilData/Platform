@@ -44,15 +44,19 @@
     <link rel="canonical" href="http://www.example.com/">
     -->
 
+    <!-- 
+    <link rel="stylesheet" href="libs/google-fonts"> 
+    <link rel="stylesheet" href="libs/google-icons"> 
+    -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.blue-light_blue.min.css">
+    <link rel="stylesheet" href="libs/material.blue-light_blue.min.css">
 
-    <script src='https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v0.28.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='libs/mapbox-gl.js'></script>
+    <link href= 'libs/mapbox-gl.css' rel='stylesheet' />
 
-    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.4.0/d3.min.js"></script>
+    <script src="libs/jquery-3.1.1.slim.min.js"></script>
+    <script src="libs/d3.min.js"></script>
 
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="datastyles.css">
@@ -90,17 +94,42 @@
   <div class="mdl-layout__drawer">
     <span class="mdl-layout-title">Data</span>
     <nav class="mdl-navigation">
-      <a class="mdl-navigation__link" href="#garbage-collection-zones">Garbage collection zones</a>
-      <a class="mdl-navigation__link" href="#parking-zones">Parking zones</a>
-      <a class="mdl-navigation__link" href="#dog-walking-zones">Dog walking zones</a>
-      <a class="mdl-navigation__link" href="#footpaths">Footpaths</a>
 
     </nav>
   </div>
       
       <main class="mdl-layout__content">
         <div class="mdl-layout__tab-panel is-active" id="overview">
-        
+        <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp" id="intro">
+            <div class="mdl-card mdl-cell mdl-cell--12-col">
+              <div class="mdl-card__title">
+                  <div class="mdl-card__title-text">
+                  <a name="intro">Welcome to the Open Council Data Platform</a>
+                  </div>
+                </div>
+              <div class="mdl-card__supporting-text">
+                <h4>How it works</h2>
+                <ol>
+                <li><b>Councils</b>: publish data to your favourite open data portal, following the <a href="http://standards.opencouncildata.org">Open Council Data standards</a>.</li>
+                <li><b>We</b> aggregate the datasets here by topic: garbage collection zones, dog walking zones, public toilets, and so on.</li>
+                <li><b>Developers</b>: you can build apps that use this data directly. When a new council publishes data in the right format, your app automatically works for that council.</li>
+                <!--
+                <li>We <a href="https://github.com/OpenCouncilData/FindPortals">find all the open council data portals</a>.</li>
+
+                <li>We find all the open council datasets for each defined topic (garbage collection zones, dog walking zones, etc), and download it all.</li>
+                <li>We upload all the individual features to CloudAnt, a cloud-hosted, <a href="https://docs.cloudant.com/geo.html">spatially-enabled</a>, web-accessible JSON database. Developers can build services directly on this platform, which supports queries like "when is rubbish collected at location X".</li>
+                <li>We also upload the data to <a href="https://mapbox.com">MapBox</a>, a cloud-hosted map platform which enables sophisticated visualisations of large datasets through the magic of <a href="https://en.wikipedia.org/wiki/Vector%20tiles">Vector Tiles</a>.</li>
+                <li>This site provides a preview of all the open council data that is available for each topic, with feedback about how well it conforms to the Open Council Data standards.</li>-->
+                </ol> 
+              </div>
+              <!--<div class="mdl-card__actions">
+                <a href="#" class="mdl-button">Button</a>
+              </div>
+              <div>
+              Hello.
+              </div>-->
+            </div>
+        </section>
      
 
           <!--
@@ -267,8 +296,10 @@
         -->
       </main>
     </div>
+
     <a href="https://github.com/google/material-design-lite/blob/mdl-1.x/templates/text-only/" target="_blank" id="view-source" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast">View Source</a>
-    <script src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+    <!-- https://code.getmdl.io/1.2.1/material.min.js -->
+    <script src="libs/material.min.js"></script>
     <script src="index.js"></script>
   </body>
 </html>
