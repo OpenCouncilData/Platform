@@ -25,6 +25,7 @@
   "dependencies": {
     "browserify": "^13.1.1",
     "d3": "^4.4.0",
-    "mapbox-gl": "^0.28.0"
+    "mapbox-gl": "^0.28.0",
+    "material-design-lite": "^1.2.1"
   }
 }

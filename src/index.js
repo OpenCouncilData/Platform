@@ -1,8 +1,8 @@
 var d3 = require('d3');
 var mapboxgl = require('mapbox-gl');
 mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwbzAydGtpM2duazY5a3IifQ.PY_k9Uatmkim9wRheztCag';
-
-console.log(`Did this work?3`);
+var mdl = require('material-design-lite'); // not sure if this is doing anything
+/* jshint esnext:true */
 
 function makeMap(topic, mapid) {
     function mapLayer(id) {
@@ -66,7 +66,7 @@ function makeMap(topic, mapid) {
         var missingValue = '&lt;MISSING&gt;';
         function keyClass(key) {
             var klass = 'prop-key';
-            ['required', 'recommended', 'optional'].forEach(function(level) {
+            ['required', 'recommended', 'optional'].forEach(level => {
                 if (topics[topic][level].indexOf(key) >= 0) {
                     klass += ' prop-key-' + level;
                 }
@@ -75,7 +75,7 @@ function makeMap(topic, mapid) {
         }
         function sortKeys(keys) {
             var t = topics[topic];
-            return keys.sort(function(a, b) {
+            return keys.sort((a, b) => {
                 function v(x) {
                     return !!(t.required.indexOf(x)+1) * 100 + !!(t.recommended.indexOf(x)+1) * 10 + !!(t.optional.indexOf(x)+1);
                 }
@@ -99,7 +99,7 @@ function makeMap(topic, mapid) {
         desc += '</span>';
         desc += '<table>';
         var hiddenFields = ['openCouncilDataTopic', 'sourceCouncilId', 'sourceUrl'];
-        sortKeys(Object.keys(addMissingProps(props))).forEach(function(key) {
+        sortKeys(Object.keys(addMissingProps(props))).forEach(key => {
             if (hiddenFields.indexOf(key) < 0) {
                 desc += '<tr><td class="' + keyClass(key) + '">' + key + '</td>';
                 desc += '<td class="prop-value' + (props[key] === missingValue ? ' prop-value-missing' : '') + '">' + props[key] + '</td></tr> ';
@@ -113,7 +113,7 @@ function makeMap(topic, mapid) {
     //    return;
     // that's the basemap
     var styleUrl = 'https://api.mapbox.com/styles/v1/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x?access_token=' + mapboxgl.accessToken + '&updated=1';
-    d3.json(styleUrl, function(style) {
+    d3.json(styleUrl, style => {
         style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic};
         //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
         style.layers.push(mapPolygonLayer('data', '240'));
@@ -127,7 +127,7 @@ function makeMap(topic, mapid) {
             center: [145,-37]
         });
 
-        map.on('mousemove', function(e) {
+        map.on('mousemove', e => {
             // TODO get layers list first so we don't query non-existent layers (causes console log spam)
             var features = map.queryRenderedFeatures(e.point, { layers: ['data-points'] }); // TODO finalise layer names (data-poly, data-points?)
             if (!features || features.length === 0)
@@ -183,17 +183,17 @@ var topics = {
 };
 
 
-Object.keys(topics).forEach(function(topic) {
+Object.keys(topics).forEach(topic => {
     if (topics[topic].required === undefined) topics[topic].required = [];
     if (topics[topic].recommended === undefined) topics[topic].recommended = [];
     if (topics[topic].optional === undefined) topics[topic].optional = [];
 });
 
-['rub', 'grn', 'rec', 'hw'].forEach(function(waste) { 
-    ['_day', '_weeks', '_start'].forEach(function(attr) {
+['rub', 'grn', 'rec', 'hw'].forEach(waste => { 
+    ['_day', '_weeks', '_start'].forEach(attr => {
         topics['garbage-collection-zones'].required.push(waste + attr);
     });
-    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(function(attr) {
+    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(attr => {
         topics['garbage-collection-zones'].optional.push(waste + attr);
     });
 });
@@ -213,7 +213,7 @@ function addTopicSections() {
     .html(topicHtml);
 
     // Create the map preview in each newly created section
-    Object.keys(topics).forEach(function(topic) { makeMap(topic/*, topics[topic].mapid*/); });
+    Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 
     // Add links to left side bar
     d3.select('.mdl-layout__drawer .mdl-navigation')
@@ -221,7 +221,7 @@ function addTopicSections() {
     .data(Object.keys(topics))
     .enter()
     .append('span')
-    .html(function(topic) {
+    .html(topic => {
         return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + '</a>';
     });
 
