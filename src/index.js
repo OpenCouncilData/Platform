@@ -4,6 +4,44 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwb
 var mdl = require('material-design-lite'); // not sure if this is doing anything
 /* jshint esnext:true */
 
+var topics = {
+    'garbage-collection-zones': { 
+        title: 'Garbage collection zones', mapid: 'ciwhgji33009f2ql7j52uo0ui',
+        recommended: ['name'], // plus more, see below
+        optional: ['info_url']
+    },
+    'public-toilets': { title: 'Public toilets',  icon: 'toilet-15' } , // mapid: 'ciwhghnv300802qqoyubh8j3h', 
+    'dog-walking-zones': { 
+        title: 'Dog-walking Zones', //, mapid: 'ciwfubtet00582qqouh3szxd4'
+        required: [ 'status' ],
+        recommended: [ 'name', 'regulation', 'comment', 'off_rules' ],
+        icon: 'dog-park-15'
+    }, 
+    'parking-zones': { title: 'Parking zones', mapid: 'ciwgcmgzc007n2ppaegfuhf76/' },
+    //'footpaths': { title: 'Footpaths' },
+    'customer-service-centres': { 
+        title: 'Customer service centres', 
+        recommended: ['name','services','address','languages','access','monday','tuesday','wednesday','thursday','friday','saturday','sunday','holiday'],
+        icon: 'town-hall-15'
+    },  /*, mapid: 'ciwhs1gi7009g2qmt41ftdmmi' */    
+    'facilities': {
+        title: 'Facilities',
+        recommended: ['name'],
+        icon: 'star-15'
+    },
+    'childcare-centres': {
+        title: 'Childcare centres',
+        recommended: ['name'],
+        icon: 'star-15'
+    },
+    'venues-for-hire': {
+        title: 'Venues for hire',
+        recommended: ['name'],
+        icon: 'triangle-stroked-15'
+    }
+    
+};
+
 function makeMap(topic, mapid) {
     function mapLayer(id) {
         return {
@@ -114,11 +152,11 @@ function makeMap(topic, mapid) {
     // that's the basemap
     var styleUrl = 'https://api.mapbox.com/styles/v1/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x?access_token=' + mapboxgl.accessToken + '&updated=1';
     d3.json(styleUrl, style => {
-        style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic};
+        style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic + '?fresh=1'};
         //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
         style.layers.push(mapPolygonLayer('data', '240'));
         style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
-        style.layers.push(mapPointLayer('data-points', 'veterinary-15', 'hsl(100,80%,70%)'));
+        style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
         var map = new mapboxgl.Map({
             container: topic + '-map',
             //style: 'mapbox://styles/opencouncildata/' + mapid + '?update=' + Math.round(Math.random()*100000),
@@ -169,18 +207,7 @@ function topicHtml(topic) {
     '</div>';
 }
 
-var topics = {
-    'garbage-collection-zones': { 
-        title: 'Garbage collection zones', mapid: 'ciwhgji33009f2ql7j52uo0ui',
-        recommended: ['name'], // plus more, see below
-        optional: ['info_url']
-    },
-    'public-toilets': { title: 'Public toilets',  icon: 'toilet-15' } , // mapid: 'ciwhghnv300802qqoyubh8j3h', 
-    'dog-walking-zones': { title: 'Dog-walking Zones', mapid: 'ciwfubtet00582qqouh3szxd4' },
-    'parking-zones': { title: 'Parking zones', mapid: 'ciwgcmgzc007n2ppaegfuhf76/' },
-    //'footpaths': { title: 'Footpaths' },
-    'customer-service-centres': { title: 'Customer service centres', icon: 'town-hall-15'}  /*, mapid: 'ciwhs1gi7009g2qmt41ftdmmi' */
-};
+
 
 
 Object.keys(topics).forEach(topic => {
