@@ -4,11 +4,15 @@
     float:left;
     margin-left: 20px; /* Can be hard to scroll down page otherwise */
 }
-.featureinfo {
+.feature-info {
     padding:1em;
     width: 100px;
     min-height:50px;
     float:left;
+}
+
+.feature-info table {
+    /*width: 100%;*/
 }
 
 .prop-key {
@@ -16,11 +20,29 @@
     background: hsl(240,50%,95%);
     margin:6px;
     color:black;
+    min-width: 100px;
+}
+
+.prop-key-recommended {
+    background: hsl(300, 50%, 85%);
+}
+.prop-key-optional {
+    background: hsl(270, 50%, 85%);
+}
+.prop-key-required {
+    background: hsl(330, 50%, 85%);
+    font-weight: bold;
 }
 
 .prop-value {
     margin-right:12px;
     font-size: 11px;
+    min-width: 200px;
+    /*max-width: 120px;*/
+}
+
+.prop-value-missing {
+    background:hsl(30, 80%,90%);
 }
 
 .feature-count {
@@ -29,4 +51,15 @@
     height: 450px;
     background:hsl(220,50%,90%);
     overflow: scroll;
+}
+
+.featureInfo__sourceCouncilId {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.featureInfo__sourceUrl {
+    font-family: 'Courier New';
+    font-size: 10px;
+    color: #555;
 }
