@@ -3,7 +3,15 @@
     height: 450px !important; /* override MDL */
     float:left;
     margin-left: 20px; /* Can be hard to scroll down page otherwise */
+    background: #444;
+    animation: fadein 3s;
 }
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
 .feature-info {
     padding:1em;
     width: 100px;
@@ -22,7 +30,7 @@
     color:black;
     min-width: 100px;
 }
-
+/*
 .prop-key-recommended {
     background: hsl(300, 50%, 85%);
 }
@@ -33,7 +41,7 @@
     background: hsl(330, 50%, 85%);
     font-weight: bold;
 }
-
+*/
 .prop-value {
     margin-right:12px;
     font-size: 11px;
@@ -42,7 +50,15 @@
 }
 
 .prop-value-missing {
-    background:hsl(30, 80%,90%);
+    background:hsl(10, 80%,80%);
+}
+
+.featureInfo__propLevelHeading {
+    font-size:14px;
+    margin: 10px 0;
+    line-height:initial;
+    width: 100%;
+    min-width: 200px; /* What's going on here? Why isn't it using the full space? */
 }
 
 .feature-count {

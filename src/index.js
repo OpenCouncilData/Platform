@@ -17,7 +17,13 @@ var topics = {
         recommended: [ 'name', 'regulation', 'comment', 'off_rules' ],
         icon: 'dog-park-15'
     }, 
-    'parking-zones': { title: 'Parking zones', mapid: 'ciwgcmgzc007n2ppaegfuhf76/' },
+    'parking-zones': { 
+        title: 'Parking zones', 
+        required: [ 'mode' ],
+        recommended: [ 'updated', 'ref'],
+        optional: [ 'start', 'end', 'days', 'minsmax', 'hourlyfee','onlyfor', 'notfor' ],
+        //mapid: 'ciwgcmgzc007n2ppaegfuhf76/'
+     },
     //'footpaths': { title: 'Footpaths' },
     'customer-service-centres': { 
         title: 'Customer service centres', 
@@ -38,6 +44,10 @@ var topics = {
         title: 'Venues for hire',
         recommended: ['name'],
         icon: 'triangle-stroked-15'
+    },
+    'wards': {
+        title: 'Voting wards',
+        recommended: ['name']
     }
     
 };
@@ -101,8 +111,8 @@ function makeMap(topic, mapid) {
     }
 
     function propsToFeatureDesc(props, topic) {
-        var missingValue = '&lt;MISSING&gt;';
-        function keyClass(key) {
+        var missingValue = '&nbsp;'//'&lt;MISSING&gt;';
+        /*function keyClass(key) {
             var klass = 'prop-key';
             ['required', 'recommended', 'optional'].forEach(level => {
                 if (topics[topic][level].indexOf(key) >= 0) {
@@ -119,6 +129,16 @@ function makeMap(topic, mapid) {
                 }
                 return v(b) - v(a) !== 0 ? v(b) - v(a) : ( a > b ? 1 : -1);
             });
+        }*/
+
+        function getPropLevel(prop) {
+            var ret = 'additional';
+            ['required','recommended','optional'].forEach(level => {
+                if (topics[topic][level].indexOf(prop) >= 0) {
+                    ret = level;
+                }
+            });
+            return ret;
         }
 
         function addMissingProps(props) {
@@ -135,12 +155,27 @@ function makeMap(topic, mapid) {
         desc += '<span class="mdl-chip">';
         desc += '<span class="mdl-chip__text"><a target="_blank" href="' + props.sourceUrl + '">Source</a></span>';
         desc += '</span>';
-        desc += '<table>';
-        var hiddenFields = ['openCouncilDataTopic', 'sourceCouncilId', 'sourceUrl'];
-        sortKeys(Object.keys(addMissingProps(props))).forEach(key => {
-            if (hiddenFields.indexOf(key) < 0) {
-                desc += '<tr><td class="' + keyClass(key) + '">' + key + '</td>';
-                desc += '<td class="prop-value' + (props[key] === missingValue ? ' prop-value-missing' : '') + '">' + props[key] + '</td></tr> ';
+        props = addMissingProps(props);
+        var hiddenFields = [
+            'opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
+            'x','y','lat','lon','long','lng','shapestarea','shapestlength'
+            ];
+
+        ['Required','Recommended','Optional','Additional'].forEach(level => {
+            var levelProps = Object.keys(props)
+                .filter(prop => getPropLevel(prop) === level.toLowerCase() && hiddenFields.indexOf(prop.toLowerCase()) < 0);
+
+            if (levelProps.length) {
+                desc += '<h4 class="featureInfo__propLevelHeading">' + level + ' fields</h4>';
+                desc += '<table>';
+
+                //sortKeys(Object.keys(props)).
+                levelProps.forEach(prop => {            
+                    desc += '<tr><td class="' + 'prop-key prop-key-' + getPropLevel(prop) + '">' + prop + '</td>';
+                    desc += '<td class="prop-value' + (props[prop] === missingValue ? ' prop-value-missing' : '') + '">' + props[prop] + '</td></tr> ';
+                    
+                });
+                desc += '</table>';
             }
         });
         return desc + '</table>';
@@ -152,7 +187,7 @@ function makeMap(topic, mapid) {
     // that's the basemap
     var styleUrl = 'https://api.mapbox.com/styles/v1/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x?access_token=' + mapboxgl.accessToken + '&updated=1';
     d3.json(styleUrl, style => {
-        style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic + '?fresh=1'};
+        style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic + '?fresh=2'};
         //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
         style.layers.push(mapPolygonLayer('data', '240'));
         style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
@@ -216,9 +251,14 @@ Object.keys(topics).forEach(topic => {
     if (topics[topic].optional === undefined) topics[topic].optional = [];
 });
 
+
+
 ['rub', 'grn', 'rec', 'hw'].forEach(waste => { 
     ['_day', '_weeks', '_start'].forEach(attr => {
-        topics['garbage-collection-zones'].required.push(waste + attr);
+        if (waste === 'rub')
+            topics['garbage-collection-zones'].required.push(waste + attr);
+        else
+            topics['garbage-collection-zones'].recommended.push(waste + attr);
     });
     ['_desc', '_ok', '_notok', '_url', '_name'].forEach(attr => {
         topics['garbage-collection-zones'].optional.push(waste + attr);
