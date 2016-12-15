@@ -46135,16 +46135,38 @@ var mdl = require('material-design-lite'); // not sure if this is doing anything
 /* jshint esnext:true */
 
 /*
-TODO: Fix `npm start` so it actually writes static/bundle.js to disk.
+TODO: 
+- Fix `npm start` so it actually writes static/bundle.js to disk.
+- consider escaping GeoJSON property values (breaking embedded HTML)
+- add to each topic link in the left side bar the number of councils publishing that topic.
  */
 
+var def = function def(x, y) {
+    return x !== undefined ? x : y;
+};
+
 var topics = {
+    // title: Shown in interface
+    // tilesetid: If the tileset ID in mapbox isn't opencouncildata.[topic]
+    // mapid: Show a pre-canned map instead of generating a style
+    // recommended, optional, optional: lists of property keys
+    // icon: a maki icon name to use for the point dataset
+    // minZoom: if we know we can zoom further out than the default 6
+
+
     'garbage-collection-zones': {
-        title: 'Garbage collection zones', mapid: 'ciwhgji33009f2ql7j52uo0ui',
+        title: 'Garbage collection zones',
+        //tilesetid: 'dqpcmlth',
+        //mapid: 'ciwhgji33009f2ql7j52uo0ui',
         recommended: ['name'], // plus more, see below
         optional: ['info_url']
     },
-    'public-toilets': { title: 'Public toilets', icon: 'toilet-15' }, // mapid: 'ciwhghnv300802qqoyubh8j3h', 
+    'public-toilets': {
+        title: 'Public toilets',
+        icon: 'toilet-15',
+        recommended: ['name', 'female', 'male', 'wheelchair', 'trsfr_side', 'week_open', 'week_close', 'sat_open', 'sat_close', 'sun_open', 'sun_close'],
+        optional: ['comment', 'access_cmt', 'needle_bin', 'operator', 'drink_tap']
+    }, // mapid: 'ciwhghnv300802qqoyubh8j3h', 
     'dog-walking-zones': {
         title: 'Dog-walking Zones',
         //mapid: 'ciwfubtet00582qqouh3szxd4',
@@ -46185,36 +46207,67 @@ var topics = {
     'wards': {
         title: 'Voting wards',
         recommended: ['name']
+    },
+    'parks': {
+        title: 'Parks and open spaces',
+        tilesetid: 'cco2avfu',
+        minZoom: 3,
+        required: ['name'],
+        recommended: ['amenities', 'description', 'url', 'image', 'address']
+    },
+    'drainpipes': {
+        title: 'Drainpipes',
+        tilesetid: '4d92w2vu',
+        minZoom: 3,
+        recommended: ['carrying', 'material'],
+        optional: ['mat_desc', 'form', 'height_mm', 'width_mm', 'built', 'ref', 'comment', 'operator']
     }
 
 };
 
+var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
+'x', 'y', 'lat', 'lon', 'long', 'lng', 'latitude', 'longitude', 'easting', 'northing', 'shapestarea', 'shapestlength'];
+
 function makeMap(topic, mapid) {
-    function mapLayer(id) {
+    function mapLayer(id, layerType, filter) {
         return {
             layout: {
                 visibility: 'visible'
             },
             source: topic,
             id: id,
+            filter: layerFilter(layerType, filter),
             'source-layer': topics[topic].layerid ? topics[topic].layerid : topic // hopefully we never need this.
         };
     }
-
+    function layerFilter(layerType, filter) {
+        var typeFilter = ['==', '$type', layerType];
+        return filter ? ['all', filter, typeFilter] : typeFilter;
+    }
     function mapPolygonLayer(id, hue, filter) {
-        var layer = mapLayer(id);
+        var layer = mapLayer(id, 'Polygon', filter);
         layer.type = 'fill';
         layer.paint = {
             'fill-color': 'hsl(' + hue + ', 50%, 40%)',
             'fill-opacity': 0.9, // 1 for overlay layers?
             'fill-outline-color': 'hsl(' + hue + ', 85%, 65%)'
         };
-        if (filter) layer.filter = filter;
+        return layer;
+    }
+
+    function mapLineLayer(id, hue, filter) {
+        var layer = mapLayer(id, 'LineString', filter);
+        layer.type = 'line';
+        layer.paint = {
+            'line-color': 'hsl(' + hue + ', 50%, 40%)',
+            'line-opacity': 0.9, // 1 for overlay layers?
+            'line-width': 3
+        };
         return layer;
     }
 
     function mapPointLayer(id, icon, textColor, filter) {
-        var layer = mapLayer(id);
+        var layer = mapLayer(id, 'Point', filter);
         layer.type = 'symbol';
         layer.layout = {
             'visibility': 'visible',
@@ -46229,7 +46282,6 @@ function makeMap(topic, mapid) {
             'icon-size': { stops: [[8, 0.5], [11, 1]] }
         };
         if (topics[topic].icon) layer.layout['icon-image'] = topics[topic].icon;
-        layer.filter = ['==', '$type', 'Point'];
         layer.paint = {
             'text-color': textColor,
             'text-halo-color': 'hsl(0,0%,20%)',
@@ -46270,8 +46322,6 @@ function makeMap(topic, mapid) {
         desc += '<span class="mdl-chip__text"><a target="_blank" href="' + props.sourceUrl + '">Source</a></span>';
         desc += '</span>';
         props = addMissingProps(props);
-        var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
-        'x', 'y', 'lat', 'lon', 'long', 'lng', 'shapestarea', 'shapestlength'];
 
         ['Required', 'Recommended', 'Optional', 'Non-standard'].forEach(function (level) {
             var levelProps = Object.keys(props).filter(function (prop) {
@@ -46279,7 +46329,7 @@ function makeMap(topic, mapid) {
             });
 
             if (levelProps.length) {
-                desc += '<h4 class="featureInfo__propLevelHeading">' + level + ' fields</h4>';
+                desc += '<h4 class="featureInfo__propLevelHeading featureInfo__propLevelHeading_' + level + '">' + level + ' fields</h4>';
                 desc += '<table>';
 
                 //sortKeys(Object.keys(props)).
@@ -46311,18 +46361,20 @@ function makeMap(topic, mapid) {
             style.layers.push(mapPolygonLayer('data', '240'));
             style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
             style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
+            style.layers.push(mapLineLayer('data-lines', '180'));
         }
         var map = new mapboxgl.Map({
             container: topic + '-map',
             //style: 'mapbox://styles/opencouncildata/' + mapid + '?update=' + Math.round(Math.random()*100000),
             style: style, //'mapbox://styles/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x', 
-            minZoom: 6, // uploaded Geojsons get converted into vector tiles with minzoom 6
+            minZoom: def(topics[topic].minZoom, 6), // uploaded Geojsons get converted into vector tiles with minzoom 6
             center: [145, -37]
         });
 
         map.on('mousemove', function (e) {
             // TODO get layers list first so we don't query non-existent layers (causes console log spam)
             var features = map.queryRenderedFeatures(e.point, { layers: ['data-points'] }); // TODO finalise layer names (data-poly, data-points?)
+            if (!features || features.length === 0) features = map.queryRenderedFeatures(e.point, { layers: ['data-lines'] });
             if (!features || features.length === 0) features = map.queryRenderedFeatures(e.point, { layers: ['data'] });
             // Change the cursor style as a UI indicator.
             map.getCanvas().style.cursor = features && features.length ? 'pointer' : '';
@@ -46344,7 +46396,7 @@ function topicHtml(topic) {
         '    <a href="#" class="mdl-button">Map preview</a>' + 
         '  </div>' + */
     '<div>' + // so that features sit alongside map
-    '<div id="' + topic + '-map" class="preview-map "></div>' + '<div id="' + topic + '-featureinfo" class="feature-info"></div>    ' + '</div>' + '<div class="' + topic + ' feature-count">' + '<table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">' + '<thead>' + '<tr><th class="mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>' + '</thead>' + '<tbody></tbody>' + '</table>' + '</div>';
+    '<div id="' + topic + '-map" class="preview-map "></div>' + '<div id="' + topic + '-featureinfo" class="feature-info"></div>    ' + '</div>' + '<div class="' + topic + ' feature-count">' + '<table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">' + '<thead>' + '<tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>' + '</thead>' + '<tbody></tbody>' + '</table>' + '</div>';
 }
 
 Object.keys(topics).forEach(function (topic) {

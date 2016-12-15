@@ -30,6 +30,7 @@
     color:black;
     min-width: 100px;
 }
+
 /*
 .prop-key-recommended {
     background: hsl(300, 50%, 85%);
@@ -42,6 +43,12 @@
     font-weight: bold;
 }
 */
+
+.prop-key-non-standard {
+    background: #eee;
+    font-style:italic;
+    font-size:80%;
+}
 .prop-value {
     margin-right:12px;
     font-size: 11px;
@@ -60,6 +67,14 @@
     width: 100%;
     min-width: 200px; /* What's going on here? Why isn't it using the full space? */
 }
+
+.featureInfo__propLevelHeading_Non-standard {
+    margin-top: 3em;
+    margin-bottom:0;
+    color: #888;
+    font-size: 80%;
+}
+
 
 .feature-count {
     padding:1em;
@@ -83,4 +98,8 @@
 .feature-count table {
     max-height: 400px;
     overflow-y: scroll;
-    }
+    background:white;
+}
+.feature-count td {
+    font-size:10px;
+} 
