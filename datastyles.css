@@ -19,8 +19,17 @@
     float:left;
 }
 
+.mdl-demo .mdl-card .mdl-card__supporting-text {
+    margin-bottom: 0.5em;
+}
+
 .feature-info table {
     /*width: 100%;*/
+}
+
+.standardlink {
+    margin-left:2em;
+    margin-bottom:1em;
 }
 
 .prop-key {
