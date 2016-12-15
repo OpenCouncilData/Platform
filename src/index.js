@@ -4,6 +4,10 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwb
 var mdl = require('material-design-lite'); // not sure if this is doing anything
 /* jshint esnext:true */
 
+/*
+TODO: Fix `npm start` so it actually writes static/bundle.js to disk.
+ */
+
 var topics = {
     'garbage-collection-zones': { 
         title: 'Garbage collection zones', mapid: 'ciwhgji33009f2ql7j52uo0ui',
@@ -12,17 +16,19 @@ var topics = {
     },
     'public-toilets': { title: 'Public toilets',  icon: 'toilet-15' } , // mapid: 'ciwhghnv300802qqoyubh8j3h', 
     'dog-walking-zones': { 
-        title: 'Dog-walking Zones', //, mapid: 'ciwfubtet00582qqouh3szxd4'
+        title: 'Dog-walking Zones', 
+        //mapid: 'ciwfubtet00582qqouh3szxd4',
         required: [ 'status' ],
         recommended: [ 'name', 'regulation', 'comment', 'off_rules' ],
         icon: 'dog-park-15'
     }, 
     'parking-zones': { 
         title: 'Parking zones', 
+        tilesetid: '1qthtzh7',
         required: [ 'mode' ],
         recommended: [ 'updated', 'ref'],
         optional: [ 'start', 'end', 'days', 'minsmax', 'hourlyfee','onlyfor', 'notfor' ],
-        //mapid: 'ciwgcmgzc007n2ppaegfuhf76/'
+        //mapid: 'ciwpknpc200jn2ppaix6pozuc'
      },
     //'footpaths': { title: 'Footpaths' },
     'customer-service-centres': { 
@@ -42,7 +48,9 @@ var topics = {
     },
     'venues-for-hire': {
         title: 'Venues for hire',
-        recommended: ['name'],
+        required: ['name','type'],
+        recommended: ['address','capacity','accessible','access','image','url','description','fee_desc','facilities'],
+        optional: ['notes','alcohol','phone','email','form_url','dimensions','ref'],
         icon: 'triangle-stroked-15'
     },
     'wards': {
@@ -58,9 +66,9 @@ function makeMap(topic, mapid) {
             layout: {
                 visibility: 'visible'
             },
-            source: topic,//'composite',
+            source: topic,
             id: id,
-            'source-layer': topic
+            'source-layer': (topics[topic].layerid ? topics[topic].layerid : topic) // hopefully we never need this.
         };
     }
 
@@ -112,27 +120,9 @@ function makeMap(topic, mapid) {
 
     function propsToFeatureDesc(props, topic) {
         var missingValue = '&nbsp;'//'&lt;MISSING&gt;';
-        /*function keyClass(key) {
-            var klass = 'prop-key';
-            ['required', 'recommended', 'optional'].forEach(level => {
-                if (topics[topic][level].indexOf(key) >= 0) {
-                    klass += ' prop-key-' + level;
-                }
-            });
-            return klass;
-        }
-        function sortKeys(keys) {
-            var t = topics[topic];
-            return keys.sort((a, b) => {
-                function v(x) {
-                    return !!(t.required.indexOf(x)+1) * 100 + !!(t.recommended.indexOf(x)+1) * 10 + !!(t.optional.indexOf(x)+1);
-                }
-                return v(b) - v(a) !== 0 ? v(b) - v(a) : ( a > b ? 1 : -1);
-            });
-        }*/
 
         function getPropLevel(prop) {
-            var ret = 'additional';
+            var ret = 'non-standard';
             ['required','recommended','optional'].forEach(level => {
                 if (topics[topic][level].indexOf(prop) >= 0) {
                     ret = level;
@@ -161,7 +151,7 @@ function makeMap(topic, mapid) {
             'x','y','lat','lon','long','lng','shapestarea','shapestlength'
             ];
 
-        ['Required','Recommended','Optional','Additional'].forEach(level => {
+        ['Required','Recommended','Optional','Non-standard'].forEach(level => {
             var levelProps = Object.keys(props)
                 .filter(prop => getPropLevel(prop) === level.toLowerCase() && hiddenFields.indexOf(prop.toLowerCase()) < 0);
 
@@ -187,11 +177,20 @@ function makeMap(topic, mapid) {
     // that's the basemap
     var styleUrl = 'https://api.mapbox.com/styles/v1/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x?access_token=' + mapboxgl.accessToken + '&updated=1';
     d3.json(styleUrl, style => {
-        style.sources[topic] = { type: 'vector', url: 'mapbox://opencouncildata.' + topic + '?fresh=2'};
-        //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
-        style.layers.push(mapPolygonLayer('data', '240'));
-        style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
-        style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
+        if (topics[topic].mapid !== undefined) {
+            style = 'mapbox://styles/opencouncildata/' + topics[topic].mapid;
+        } else {
+            style.sources[topic] = { 
+                type: 'vector', 
+                // some tilesets have funky names. can't rename them
+                url: 'mapbox://opencouncildata.' + (topics[topic].tilesetid ? topics[topic].tilesetid : topic) + '?fresh=3'
+            };
+            console.log(style.sources);
+            //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
+            style.layers.push(mapPolygonLayer('data', '240'));
+            style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
+            style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
+        }
         var map = new mapboxgl.Map({
             container: topic + '-map',
             //style: 'mapbox://styles/opencouncildata/' + mapid + '?update=' + Math.round(Math.random()*100000),

@@ -79,3 +79,8 @@
     font-size: 10px;
     color: #555;
 }
+
+.feature-count table {
+    max-height: 400px;
+    overflow-y: scroll;
+    }

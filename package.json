@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node node_modules/budo/bin/cmd.js src/index.js:static/bundle.js --live -- -t [ babelify --presets [ es2015 ] ]"
+    "start": "node node_modules/budo/bin/cmd.js src/index.js:static/bundle.js --live -- -t [ babelify --presets [ es2015 ] ]",
+    "build": "node node_modules/browserify/bin/cmd.js ./src/index.js -o static/bundle.js -t babelify"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "babelify": "^7.3.0",
     "budo": "^9.3.0"
   },
+  "babel": { "presets": ["es2015"] },
   "dependencies": {
     "browserify": "^13.1.1",
     "d3": "^4.4.0",
