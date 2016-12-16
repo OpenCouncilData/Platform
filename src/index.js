@@ -379,11 +379,10 @@ function addTopicSections() {
     .html(topicHtml);
 
     // Create the map preview in each newly created section
-    //Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+    Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 }
 
 addTopicSections();
-makeSidebarLinks();
 makeSidebarLinks();
 
 d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCounts?reduce=true', function(data) {
