@@ -386,7 +386,7 @@ function addTopicSections() {
     .html(topicHtml);
 
     // Create the map preview in each newly created section
-   // Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+       Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 }
 
 addTopicSections();

@@ -46473,7 +46473,9 @@ function addTopicSections() {
     d3.select('#overview').selectAll('.topic-section').data(Object.keys(topics)).enter().append('section').html(topicHtml);
 
     // Create the map preview in each newly created section
-    // Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+    Object.keys(topics).forEach(function (topic) {
+        makeMap(topic /*, topics[topic].mapid*/);
+    });
 }
 
 addTopicSections();
