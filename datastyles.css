@@ -1,5 +1,17 @@
 .topic-council-count {
-    /*color: blue;*/
+    animation: bouncein 2s ease;
+}
+
+@keyframes bouncein {
+    /* gah, why doesn't this work */
+    from { 
+        /*transform: translate(10px, 0);*/
+        font-size: 2px;
+    }
+    to { 
+        /*transform: translate(0, 0);*/
+        /*font-size: 12px;*/
+    }
 }
 
 .mdl-navigation__link {

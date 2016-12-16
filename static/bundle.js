@@ -46242,6 +46242,12 @@ var topics = {
         recommended: ['paved', 'surf', 'width', 'wheelchair'],
         optional: ['surf_desc', 'operator', 'ref', 'bicycle'],
         standard: 'http://standards.opencouncildata.org/#/footpaths'
+    },
+    'road-closures': {
+        title: 'Road closures',
+        standard: 'http://standards.opencouncildata.org/#/road-closures',
+        required: ['status', 'start_date', 'start_time'],
+        recommended: ['end_date', 'end_time', 'reason', 'status_desc', 'direction', 'updated']
     }
 
 };
@@ -46414,7 +46420,8 @@ function makeMap(topic, mapid) {
 function topicHtml(topic) {
     return '<section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">' + '<div class="mdl-card mdl-cell mdl-cell--12-col">' + '  <div class="mdl-card__supporting-text">' + '    <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>' + '  </div>' + (
     //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
-    '  <div class="standardlink">Standard: <a target="_blank" href="' + topics[topic].standard + '">' + topics[topic].standard + '</a></div>') +
+    //
+    topics[topic.standard] ? '  <div class="standardlink">Standard: <a target="_blank" href="' + topics[topic].standard + '">' + topics[topic].standard + '</a></div>' : '') +
 
     /*    '  <div class="mdl-card__actions">' + 
         '    <a href="#" class="mdl-button">Map preview</a>' + 
@@ -46466,9 +46473,7 @@ function addTopicSections() {
     d3.select('#overview').selectAll('.topic-section').data(Object.keys(topics)).enter().append('section').html(topicHtml);
 
     // Create the map preview in each newly created section
-    Object.keys(topics).forEach(function (topic) {
-        makeMap(topic /*, topics[topic].mapid*/);
-    });
+    // Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 }
 
 addTopicSections();

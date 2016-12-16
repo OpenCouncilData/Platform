@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "animate.css": "^3.5.2",
     "browserify": "^13.1.1",
     "d3": "^4.4.0",
     "mapbox-gl": "^0.28.0",
