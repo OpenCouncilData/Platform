@@ -46159,68 +46159,89 @@ var topics = {
         //tilesetid: 'dqpcmlth',
         //mapid: 'ciwhgji33009f2ql7j52uo0ui',
         recommended: ['name'], // plus more, see below
-        optional: ['info_url']
+        optional: ['info_url'],
+        standard: 'http://standards.opencouncildata.org/#/garbage-collection-zones'
     },
     'public-toilets': {
         title: 'Public toilets',
         icon: 'toilet-15',
         recommended: ['name', 'female', 'male', 'wheelchair', 'trsfr_side', 'week_open', 'week_close', 'sat_open', 'sat_close', 'sun_open', 'sun_close'],
-        optional: ['comment', 'access_cmt', 'needle_bin', 'operator', 'drink_tap']
+        optional: ['comment', 'access_cmt', 'needle_bin', 'operator', 'drink_tap'],
+        standard: 'http://standards.opencouncildata.org/#/toilets'
     }, // mapid: 'ciwhghnv300802qqoyubh8j3h', 
     'dog-walking-zones': {
         title: 'Dog-walking Zones',
         //mapid: 'ciwfubtet00582qqouh3szxd4',
         required: ['status'],
         recommended: ['name', 'regulation', 'comment', 'off_rules'],
-        icon: 'dog-park-15'
+        icon: 'dog-park-15',
+        standard: 'http://standards.opencouncildata.org/#/dogzones'
+
     },
     'parking-zones': {
         title: 'Parking zones',
         tilesetid: '1qthtzh7',
         required: ['mode'],
         recommended: ['updated', 'ref'],
-        optional: ['start', 'end', 'days', 'minsmax', 'hourlyfee', 'onlyfor', 'notfor']
+        optional: ['start', 'end', 'days', 'minsmax', 'hourlyfee', 'onlyfor', 'notfor'],
+        standard: 'http://standards.opencouncildata.org/#/parkingzones'
+        //mapid: 'ciwpknpc200jn2ppaix6pozuc'
     },
     //'footpaths': { title: 'Footpaths' },
     'customer-service-centres': {
         title: 'Customer service centres',
         recommended: ['name', 'services', 'address', 'languages', 'access', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'holiday'],
-        icon: 'town-hall-15'
+        icon: 'town-hall-15',
+        standard: 'http://standards.opencouncildata.org/#/customer_service_centres'
     }, /*, mapid: 'ciwhs1gi7009g2qmt41ftdmmi' */
     'facilities': {
         title: 'Facilities',
         recommended: ['name'],
-        icon: 'star-15'
+        icon: 'star-15',
+        standard: 'http://standards.opencouncildata.org/#/facilities'
     },
     'childcare-centres': {
         title: 'Childcare centres',
         recommended: ['name'],
-        icon: 'star-15'
+        icon: 'star-15',
+        standard: 'http://standards.opencouncildata.org/#/childcare_centres'
     },
     'venues-for-hire': {
         title: 'Venues for hire',
         required: ['name', 'type'],
         recommended: ['address', 'capacity', 'accessible', 'access', 'image', 'url', 'description', 'fee_desc', 'facilities'],
         optional: ['notes', 'alcohol', 'phone', 'email', 'form_url', 'dimensions', 'ref'],
-        icon: 'triangle-stroked-15'
+        icon: 'triangle-stroked-15',
+        standard: 'http://standards.opencouncildata.org/#/wards'
     },
     'wards': {
         title: 'Voting wards',
-        recommended: ['name']
+        recommended: ['name'],
+        standard: 'http://standards.opencouncildata.org/#/wards'
     },
     'parks': {
         title: 'Parks and open spaces',
         tilesetid: 'cco2avfu',
         minZoom: 3,
         required: ['name'],
-        recommended: ['amenities', 'description', 'url', 'image', 'address']
+        recommended: ['amenities', 'description', 'url', 'image', 'address'],
+        standard: 'http://standards.opencouncildata.org/#/parks'
     },
     'drainpipes': {
         title: 'Drainpipes',
         tilesetid: '4d92w2vu',
         minZoom: 3,
         recommended: ['carrying', 'material'],
-        optional: ['mat_desc', 'form', 'height_mm', 'width_mm', 'built', 'ref', 'comment', 'operator']
+        optional: ['mat_desc', 'form', 'height_mm', 'width_mm', 'built', 'ref', 'comment', 'operator'],
+        standard: 'http://standards.opencouncildata.org/#/drainpipes'
+    },
+    'footpaths': {
+        title: 'Footpaths',
+        tilesetid: '3g5a81ox',
+        minZoom: 3,
+        recommended: ['paved', 'surf', 'width', 'wheelchair'],
+        optional: ['surf_desc', 'operator', 'ref', 'bicycle'],
+        standard: 'http://standards.opencouncildata.org/#/footpaths'
     }
 
 };
@@ -46248,7 +46269,7 @@ function makeMap(topic, mapid) {
         var layer = mapLayer(id, 'Polygon', filter);
         layer.type = 'fill';
         layer.paint = {
-            'fill-color': 'hsl(' + hue + ', 50%, 40%)',
+            'fill-color': 'hsl(' + hue + ', 50%, 50%)',
             'fill-opacity': 0.9, // 1 for overlay layers?
             'fill-outline-color': 'hsl(' + hue + ', 85%, 65%)'
         };
@@ -46358,8 +46379,8 @@ function makeMap(topic, mapid) {
             };
             console.log(style.sources);
             //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
-            style.layers.push(mapPolygonLayer('data', '240'));
-            style.layers.push(mapPolygonLayer('data-good', '95', ['has', 'rub_day']));
+            style.layers.push(mapPolygonLayer('data-polygons', '240'));
+            style.layers.push(mapPolygonLayer('data-polygons-good', '95', ['has', 'rub_day']));
             style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
             style.layers.push(mapLineLayer('data-lines', '180'));
         }
@@ -46375,7 +46396,7 @@ function makeMap(topic, mapid) {
             // TODO get layers list first so we don't query non-existent layers (causes console log spam)
             var features = map.queryRenderedFeatures(e.point, { layers: ['data-points'] }); // TODO finalise layer names (data-poly, data-points?)
             if (!features || features.length === 0) features = map.queryRenderedFeatures(e.point, { layers: ['data-lines'] });
-            if (!features || features.length === 0) features = map.queryRenderedFeatures(e.point, { layers: ['data'] });
+            if (!features || features.length === 0) features = map.queryRenderedFeatures(e.point, { layers: ['data-polygons'] });
             // Change the cursor style as a UI indicator.
             map.getCanvas().style.cursor = features && features.length ? 'pointer' : '';
             if (features && features.length) {
@@ -46391,7 +46412,10 @@ function makeMap(topic, mapid) {
 
 
 function topicHtml(topic) {
-    return '<section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">' + '<div class="mdl-card mdl-cell mdl-cell--12-col">' + '  <div class="mdl-card__supporting-text">' + '    <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>' + '  </div>' +
+    return '<section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">' + '<div class="mdl-card mdl-cell mdl-cell--12-col">' + '  <div class="mdl-card__supporting-text">' + '    <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>' + '  </div>' + (
+    //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
+    '  <div class="standardlink">Standard: <a target="_blank" href="' + topics[topic].standard + '">' + topics[topic].standard + '</a></div>') +
+
     /*    '  <div class="mdl-card__actions">' + 
         '    <a href="#" class="mdl-button">Map preview</a>' + 
         '  </div>' + */
@@ -46417,6 +46441,25 @@ Object.keys(topics).forEach(function (topic) {
 //topics = [['garbage-collection-zones', 'Garbage collection zones', 'ciwhgji33009f2ql7j52uo0ui']];
 //topics = [['dog-walking-zones', 'Dog-walking Zones', 'ciwfubtet00582qqouh3szxd4']];
 
+function makeSidebarLinks() {
+    // Add links to left side bar
+    var links = d3.select('.mdl-layout__drawer .mdl-navigation').selectAll('span.sidebar-link').data(Object.keys(topics));
+
+    links.enter().append('span').merge(links).classed('sidebar-link', true)
+    //.classed('mdl-badge', topic => topics[topic]._councilCount )
+    //.attr('data-badge', topic => topics[topic]._councilCount)
+    .html(function (topic) {
+        var count = '';
+        if (topics[topic]._councilCount) {
+            //count = '33';
+            count = '&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">' + topics[topic]._councilCount + '</span>';
+        }
+        //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
+        return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+        //return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+    });
+}
+
 function addTopicSections() {
 
     // Add main sections to body
@@ -46426,14 +46469,10 @@ function addTopicSections() {
     Object.keys(topics).forEach(function (topic) {
         makeMap(topic /*, topics[topic].mapid*/);
     });
-
-    // Add links to left side bar
-    d3.select('.mdl-layout__drawer .mdl-navigation').selectAll('span').data(Object.keys(topics)).enter().append('span').html(function (topic) {
-        return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + '</a>';
-    });
 }
 
 addTopicSections();
+makeSidebarLinks();
 
 d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCounts?reduce=true', function (data) {
     Object.keys(topics).forEach(function (topic) {
@@ -46443,6 +46482,8 @@ d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topic
         Object.keys(values).forEach(function (key) {
             counts.push([key, values[key]]);
         });
+        topics[topic]._councilCount = Object.keys(values).length;
+        makeSidebarLinks();
 
         d3.select('.' + topic + '.feature-count tbody').selectAll('tr').data(counts).enter().append('tr').html(function (d) {
             return '<td>' + d[0] + '</td><td>' + d[1] + '</td>';
