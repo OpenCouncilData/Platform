@@ -2,6 +2,10 @@
     /*color: blue;*/
 }
 
+.mdl-navigation__link {
+    padding-right:10px !important;
+}
+
 .preview-map {
     width: 600px; 
     height: 450px !important; /* override MDL */
