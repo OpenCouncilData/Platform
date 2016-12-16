@@ -344,6 +344,30 @@ Object.keys(topics).forEach(topic => {
 //topics = [['garbage-collection-zones', 'Garbage collection zones', 'ciwhgji33009f2ql7j52uo0ui']];
     //topics = [['dog-walking-zones', 'Dog-walking Zones', 'ciwfubtet00582qqouh3szxd4']];
 
+function makeSidebarLinks() {
+   // Add links to left side bar
+    var links = d3.select('.mdl-layout__drawer .mdl-navigation')
+        .selectAll('span.sidebar-link')
+        .data(Object.keys(topics));
+
+    links.enter()
+        .append('span')
+        .merge(links)
+        .classed('sidebar-link', true)
+        //.classed('mdl-badge', topic => topics[topic]._councilCount )
+        //.attr('data-badge', topic => topics[topic]._councilCount)
+        .html(topic => {
+            var count='';
+            if (topics[topic]._councilCount) {
+                //count = '33';
+                count = `&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">${topics[topic]._councilCount}</span>`;
+            }
+            //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
+            return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+            //return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+        });
+}
+
 function addTopicSections() {
 
     // Add main sections to body
@@ -355,23 +379,12 @@ function addTopicSections() {
     .html(topicHtml);
 
     // Create the map preview in each newly created section
-    Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
-
-    // Add links to left side bar
-    d3.select('.mdl-layout__drawer .mdl-navigation')
-    .selectAll('span')
-    .data(Object.keys(topics))
-    .enter()
-    .append('span')
-    .html(topic => {
-        return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + '</a>';
-    });
-
-    
-
+    //Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 }
 
 addTopicSections();
+makeSidebarLinks();
+makeSidebarLinks();
 
 d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCounts?reduce=true', function(data) {
     Object.keys(topics).forEach(function(topic) {
@@ -382,6 +395,8 @@ d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topic
         Object.keys(values).forEach(function(key) {
             counts.push([key, values[key]]);
         });
+        topics[topic]._councilCount = Object.keys(values).length;
+        makeSidebarLinks();
 
         d3.select('.' + topic + '.feature-count tbody')
         .selectAll('tr')
