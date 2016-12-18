@@ -1,16 +1,15 @@
 .topic-council-count {
+    display:inline-block;
     animation: bouncein 2s ease;
 }
 
 @keyframes bouncein {
-    /* gah, why doesn't this work */
-    from { 
-        /*transform: translate(10px, 0);*/
-        font-size: 2px;
+    0%  { 
+        transform: translate(3em, 0);
+        opacity:0;
     }
-    to { 
-        /*transform: translate(0, 0);*/
-        /*font-size: 12px;*/
+    50% {
+        opacity: 0.25;
     }
 }
 
