@@ -46150,6 +46150,10 @@ var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // f
 'x', 'y', 'lat', 'lon', 'long', 'lng', 'latitude', 'longitude', 'easting', 'northing', 'shapestarea', 'shapestlength'];
 
 function makeMap(topic, mapid) {
+    function layerFilter(layerType, filter) {
+        var typeFilter = ['==', '$type', layerType];
+        return filter ? ['all', filter, typeFilter] : typeFilter;
+    }
     function mapLayer(id, layerType, filter) {
         return {
             layout: {
@@ -46160,10 +46164,6 @@ function makeMap(topic, mapid) {
             filter: layerFilter(layerType, filter),
             'source-layer': topics[topic].layerid ? topics[topic].layerid : topic // hopefully we never need this.
         };
-    }
-    function layerFilter(layerType, filter) {
-        var typeFilter = ['==', '$type', layerType];
-        return filter ? ['all', filter, typeFilter] : typeFilter;
     }
     function mapPolygonLayer(id, hue, filter) {
         var layer = mapLayer(id, 'Polygon', filter);
@@ -46187,7 +46187,7 @@ function makeMap(topic, mapid) {
         return layer;
     }
 
-    function mapPointLayer(id, icon, textColor, filter) {
+    function mapPointLayer(id, icon, textColor, maxzoom, filter) {
         var layer = mapLayer(id, 'Point', filter);
         layer.type = 'symbol';
         layer.layout = {
@@ -46202,7 +46202,8 @@ function makeMap(topic, mapid) {
             'text-optional': true,
             'icon-size': { stops: [[8, 0.5], [11, 1]] }
         };
-        if (topics[topic].icon) layer.layout['icon-image'] = topics[topic].icon;
+        if (icon) layer.layout['icon-image'] = icon;
+        if (maxzoom) layer.maxzoom = maxzoom;
         layer.paint = {
             'text-color': textColor,
             'text-halo-color': 'hsl(0,0%,20%)',
@@ -46277,12 +46278,18 @@ function makeMap(topic, mapid) {
                 // some tilesets have funky names. can't rename them
                 url: 'mapbox://opencouncildata.' + (topics[topic].tilesetid ? topics[topic].tilesetid : topic) + '?fresh=3'
             };
-            console.log(style.sources);
-            //style.sources.composite.url += ',opencouncildata.' + topic; // should we create a separate vector layer instead? dunno.
+            // console.log(style.sources);
             style.layers.push(mapPolygonLayer('data-polygons', '240'));
             style.layers.push(mapPolygonLayer('data-polygons-good', '95', ['has', 'rub_day']));
-            style.layers.push(mapPointLayer('data-points', 'star-15', 'hsl(100,80%,70%)'));
+            style.layers.push(mapPointLayer('data-points', def(topics[topic].icon, 'star-15'), 'hsl(100,80%,70%)'));
             style.layers.push(mapLineLayer('data-lines', '180'));
+            if (topics[topic].polygons && topics[topic].polygons.points) {
+                var pp = topics[topic].polygons.points;
+                var layer = mapPointLayer('data-polygon-points', def(pp.icon, 'roadblock-15'), 'hsl(240,80%,70%)', def(pp.maxzoom, 12));
+                delete layer.filter;
+                //layer.filter = undefined;
+                style.layers.push(layer);
+            }
         }
         var map = new mapboxgl.Map({
             container: topic + '-map',
@@ -46301,7 +46308,8 @@ function makeMap(topic, mapid) {
             map.getCanvas().style.cursor = features && features.length ? 'pointer' : '';
             if (features && features.length) {
                 var featureDesc = propsToFeatureDesc(features[0].properties, topic);
-                $('#' + topic + '-featureinfo').html(featureDesc);
+                //$('#' + topic + '-featureinfo').html(featureDesc);
+                d3.select('#' + topic + '-featureinfo').html(featureDesc);
                 //console.log(features);
             }
         });
@@ -46498,7 +46506,13 @@ module.exports = {
         title: 'Road closures',
         standard: 'http://standards.opencouncildata.org/#/road-closures',
         required: ['status', 'start_date', 'start_time'],
-        recommended: ['end_date', 'end_time', 'reason', 'status_desc', 'direction', 'updated']
+        recommended: ['end_date', 'end_time', 'reason', 'status_desc', 'direction', 'updated'],
+        polygons: {
+            points: {
+                maxzoom: 12,
+                icon: 'roadblock-15'
+            }
+        }
     }
 
 };

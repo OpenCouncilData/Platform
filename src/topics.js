@@ -101,7 +101,13 @@ module.exports= {
         title:'Road closures',
         standard: 'http://standards.opencouncildata.org/#/road-closures',
         required: ['status','start_date','start_time'],
-        recommended:['end_date','end_time','reason','status_desc','direction','updated']
+        recommended:['end_date','end_time','reason','status_desc','direction','updated'],
+        polygons: {
+            points: {
+                maxzoom: 12,
+                icon: 'roadblock-15'
+            }
+        }
     }
     
 };
