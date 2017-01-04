@@ -26,6 +26,41 @@
     animation: fadein 3s;
 }
 
+.not-loaded {
+    /*background: #558;*/
+}
+.not-loaded {
+    position: relative;
+    cursor:pointer;
+    
+    background: repeating-linear-gradient(
+        45deg,
+        #555,
+        #555 10px,
+        #5a5a5a 10px,
+        #5a5a5a 20px
+    )
+}
+.preview-map-placeholder {
+    cursor:pointer;
+    position:absolute;
+    content: 'Click to load';
+    color: grey;
+    font-family:Arial;
+    font-size:40px;
+    /*padding-top:40px;*/
+    top:50%;
+    left:50%;
+    width:80%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+
+    background: rgba(30,30,30,0.3);
+    padding:0.5em;
+ /*   width:200px;
+    height:100px;*/
+}
+
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }

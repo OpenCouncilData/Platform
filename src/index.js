@@ -7,8 +7,10 @@ var mdl = require('material-design-lite'); // not sure if this is doing anything
 /*
 TODO: 
 - Fix `npm start` so it actually writes static/bundle.js to disk.
+-- (currently you need `npm run build`)
 - consider escaping GeoJSON property values (breaking embedded HTML)
-- add to each topic link in the left side bar the number of councils publishing that topic.
+✓ add to each topic link in the left side bar the number of councils publishing that topic.
+- 'Show preview' button on each map, instead of loading the whole map automatically.
  */
 
 const def = (x, y) => x !== undefined ? x : y;
@@ -146,9 +148,16 @@ function makeMap(topic, mapid) {
 
     //if (!mapid)
     //    return;
+
+    // uh, how do we remove an event handler?
+    if (!d3.select(`#${topic}-map`).classed('not-loaded'))
+        return;
     // that's the basemap
+
     var styleUrl = 'https://api.mapbox.com/styles/v1/opencouncildata/ciwlmjw2y00db2ppa9tmclv7x?access_token=' + mapboxgl.accessToken + '&updated=1';
     d3.json(styleUrl, style => {
+        d3.select(`#${topic}-map`).classed('not-loaded', false);
+        d3.select(`#${topic}-map .preview-map-placeholder`).remove();
         if (topics[topic].mapid !== undefined) {
             style = 'mapbox://styles/opencouncildata/' + topics[topic].mapid;
         } else {
@@ -201,11 +210,12 @@ function makeMap(topic, mapid) {
 
 
 function topicHtml(topic) {
-    return  '<section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">' + 
-    '<div class="mdl-card mdl-cell mdl-cell--12-col">' + 
-    '  <div class="mdl-card__supporting-text">' + 
-    '    <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>' + 
-    '  </div>' +
+    return  `\
+    <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">\
+    <div class="mdl-card mdl-cell mdl-cell--12-col">\
+      <div class="mdl-card__supporting-text">\ 
+        <a name="${topic}"><h4>${topics[topic].title}</h4></a>\
+      </div>` +
     //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
     //
     (topics[topic.standard] ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: '')+
@@ -213,18 +223,21 @@ function topicHtml(topic) {
 /*    '  <div class="mdl-card__actions">' + 
     '    <a href="#" class="mdl-button">Map preview</a>' + 
     '  </div>' + */
-    '<div>' + // so that features sit alongside map
-    '<div id="' + topic + '-map" class="preview-map "></div>' + 
-    '<div id="' + topic + '-featureinfo" class="feature-info"></div>    ' + 
-    '</div>' +
-    '<div class="' + topic + ' feature-count">' +
-    '<table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">' +
-    '<thead>' +
-    '<tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>' +
-    '</thead>' +
-    '<tbody></tbody>' +
-    '</table>' +
-    '</div>';
+    // extra div so that features sit alongside map
+    `<div>\
+    <div id="${topic}-map" class="preview-map not-loaded">\
+        <div class="preview-map-placeholder">Click for preview map</div>\
+    </div>\
+    <div id="${topic}-featureinfo" class="feature-info"></div>\
+    </div>\
+    <div class="${topic} feature-count">\
+        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">\
+        <thead>\
+            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>\
+        </thead>\
+        <tbody></tbody>\
+        </table>\
+    </div>`;
 }
 
 
@@ -288,31 +301,55 @@ function addTopicSections() {
     .append('section')
     .html(topicHtml);
 
+
+    Object.keys(topics).forEach(topic => {
+        d3.select(`#${topic}-map`).on('click', () => makeMap(topic/*, topics[topic].mapid*/));
+    });
+
     // Create the map preview in each newly created section
-       Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+    //  Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+    //  
+    //  
+    /* Not yet ready.
+    d3.select('main')
+    .append('section')
+    .classed('mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section', true)
+    .html('<div class="mdl-card mdl-cell mdl-cell--12-col">' + 
+        '  <div class="mdl-card__supporting-text">' + 
+        '    <a name="Developers"><h4>Developers</h4></a>' + 
+        '  </div>' +
+        require('./developers.md') + 
+        '</div>');
+    */
+}
+
+// get counts of features per council, and hence display topic coverage (side bar) and feature counts (per topic)
+function showFeatureCounts() {
+    // group_level=2 is important here
+    d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCoverage?reduce=true&group_level=2&limit=5000', function(data) {
+        
+        data.rows.forEach(row => {
+            var topic = row.key[0];
+            var council = row.key[1];
+            topics[topic]._councilCount = (topics[topic]._councilCount || 0) + 1;
+            topics[topic]._councilCounts = def(topics[topic]._councilCounts, []);
+            topics[topic]._councilCounts.push([council, row.value]); //[council] = row.value;
+
+        });
+        makeSidebarLinks();
+
+        Object.keys(topics).forEach(function(topic) {
+            d3.select('.' + topic + '.feature-count tbody')
+            .selectAll('tr')
+            .data(def(topics[topic]._councilCounts,[]))
+            .enter()
+            .append('tr')
+            .html(d => '<td>' + d[0] + '</td><td>' + d[1] + '</td>');
+        });
+
+    });
 }
 
 addTopicSections();
 makeSidebarLinks();
-
-d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCounts?reduce=true', function(data) {
-    Object.keys(topics).forEach(function(topic) {
-        var values = data.rows[0].value[topic];
-        if (!values)
-            return;
-        var counts = [];
-        Object.keys(values).forEach(function(key) {
-            counts.push([key, values[key]]);
-        });
-        topics[topic]._councilCount = Object.keys(values).length;
-        makeSidebarLinks();
-
-        d3.select('.' + topic + '.feature-count tbody')
-        .selectAll('tr')
-        .data(counts)
-        .enter()
-        .append('tr')
-        .html(function(d) { return '<td>' + d[0] + '</td><td>' + d[1] + '</td>'; });
-    });
-
-});
+showFeatureCounts();
