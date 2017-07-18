@@ -27,7 +27,7 @@ function topicHtml(topic) {
       </div>` +
     //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
     //
-    (topics[topic.standard] ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: '')+
+    (topics[topic].standard ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: 'NAW')+
 
 /*    '  <div class="mdl-card__actions">' + 
     '    <a href="#" class="mdl-button">Map preview</a>' + 
