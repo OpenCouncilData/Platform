@@ -1,4 +1,6 @@
-module.exports= {
+const def = (x, y) => x !== undefined ? x : y;
+
+let topics = {
         // title: Shown in interface
         // tilesetid: If the tileset ID in mapbox isn't opencouncildata.[topic]
         // mapid: Show a pre-canned map instead of generating a style
@@ -66,7 +68,7 @@ module.exports= {
         recommended: ['address','capacity','accessible','access','image','url','description','fee_desc','facilities'],
         optional: ['notes','alcohol','phone','email','form_url','dimensions','ref'],
         icon: 'triangle-stroked-15',
-        standard: 'http://standards.opencouncildata.org/#/wards'
+        standard: 'http://standards.opencouncildata.org/#/venues-for-hire'
     },
     'wards': {
         title: 'Voting wards',
@@ -111,3 +113,23 @@ module.exports= {
     }
     
 };
+
+Object.keys(topics).forEach(topic => {
+    ['required', 'recommended', 'optional']
+        .forEach(level => topics[topic][level] = def(topics[topic][level], []));
+});
+
+
+['rub', 'grn', 'rec', 'hw'].forEach(waste => { 
+    ['_day', '_weeks', '_start'].forEach(attr => {
+        if (waste === 'rub')
+            topics['garbage-collection-zones'].required.push(waste + attr);
+        else
+            topics['garbage-collection-zones'].recommended.push(waste + attr);
+    });
+    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(attr => {
+        topics['garbage-collection-zones'].optional.push(waste + attr);
+    });
+});
+
+module.exports = topics;

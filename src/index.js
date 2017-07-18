@@ -86,24 +86,6 @@ function addTopicSections() {
 
 
 
-Object.keys(topics).forEach(topic => {
-    ['required', 'recommended', 'optional']
-        .forEach(level => topics[topic][level] = def(topics[topic][level], []));
-});
-
-
-
-['rub', 'grn', 'rec', 'hw'].forEach(waste => { 
-    ['_day', '_weeks', '_start'].forEach(attr => {
-        if (waste === 'rub')
-            topics['garbage-collection-zones'].required.push(waste + attr);
-        else
-            topics['garbage-collection-zones'].recommended.push(waste + attr);
-    });
-    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(attr => {
-        topics['garbage-collection-zones'].optional.push(waste + attr);
-    });
-});
 
 
 //topics = [['garbage-collection-zones', 'Garbage collection zones', 'ciwhgji33009f2ql7j52uo0ui']];
