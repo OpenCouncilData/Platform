@@ -1,13 +1,9 @@
+/* jshint esnext:true */
 const topics = require('./topics');
 const def = (x, y) => x !== undefined ? x : y;
 var d3 = require('d3');
 var mapboxgl = require('mapbox-gl');
 mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwbzAydGtpM2duazY5a3IifQ.PY_k9Uatmkim9wRheztCag';
-var hiddenFields = [
-    'opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
-    'x','y','lat','lon','long','lng','latitude','longitude', 'easting','northing', 
-    'shapestarea','shapestlength'
-    ];
 
 /*
   Create a map preview element, constructing and styling a Mapbox map.
@@ -28,29 +24,31 @@ module.exports = function (topic, mapid) {
             'source-layer': (topics[topic].layerid ? topics[topic].layerid : topic) // hopefully we never need this.
         };
     }
+    // create a polygon based layer for a given datasource id.
     function mapPolygonLayer(id, hue, filter) {
         var layer = mapLayer(id, 'Polygon', filter);
         layer.type = 'fill';
         layer.paint = {
-            'fill-color': 'hsl(' + hue + ', 50%, 50%)',
+            'fill-color': `hsl(${hue}, 50%, 50%)`,
             'fill-opacity': 0.9, // 1 for overlay layers?
-            'fill-outline-color': 'hsl(' + hue + ', 85%, 65%)'
+            'fill-outline-color': `hsl(${hue}, 85%, 65%)`
         };
         return layer;
     }
 
+    // create a line based layer for a given datasource id.
     function mapLineLayer(id, hue, filter) {
         var layer = mapLayer(id, 'LineString', filter);
         layer.type = 'line';
         layer.paint = {
-            'line-color': 'hsl(' + hue + ', 50%, 40%)',
+            'line-color': `hsl(${hue}, 50%, 40%)`,
             'line-opacity': 0.9, // 1 for overlay layers?
             'line-width': 3
         };
         return layer;
     }
 
-
+    // create a symbol based layer for a given datasource id.
     function mapPointLayer(id, icon, textColor, maxzoom, filter) {
         var layer = mapLayer(id, 'Point', filter);
         layer.type = 'symbol';
@@ -64,7 +62,7 @@ module.exports = function (topic, mapid) {
             'icon-allow-overlap': true,
             'icon-ignore-placement': true,
             'text-optional': true,
-            'icon-size': { stops: [ [ 8, 0.5], [ 11, 1 ] ] }
+            'icon-size': { stops: [[8, 0.5], [11, 1]]}
         };
         if (icon)
             layer.layout['icon-image'] = icon;
@@ -84,9 +82,17 @@ module.exports = function (topic, mapid) {
         };
         return layer;
     }
-
+    /*
+        Turn the set of available properties for a feature into an HTML description that highlights the level of compliance
+        with the standard.
+    */
     function propsToFeatureDesc(props, topic) {
         var missingValue = '&nbsp;'; //'&lt;MISSING&gt;';
+        var hiddenFields = [
+            'opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
+            'x','y','lat','lon','long','lng','latitude','longitude', 'easting','northing', 
+            'shapestarea','shapestlength'];
+
 
         function getPropLevel(prop) {
             var ret = 'non-standard';
@@ -98,6 +104,7 @@ module.exports = function (topic, mapid) {
             return ret;
         }
 
+        // Add a placeholder value for missing property values, so the omission is visible.
         function addMissingProps(props) {
             topics[topic].required.forEach(function (key) {
                 if (props[key] === undefined) {
@@ -118,25 +125,21 @@ module.exports = function (topic, mapid) {
             var levelProps = Object.keys(props)
                 .filter(prop => getPropLevel(prop) === level.toLowerCase() && hiddenFields.indexOf(prop.toLowerCase()) < 0);
 
-            if (levelProps.length) {
-                desc += '<h4 class="featureInfo__propLevelHeading featureInfo__propLevelHeading_' + level + '">' + level + ' fields</h4>';
-                desc += '<table>';
+            if (!levelProps.length)
+                return;
 
-                //sortKeys(Object.keys(props)).
-                levelProps.forEach(prop => {            
-                    desc += '<tr><td class="' + 'prop-key prop-key-' + getPropLevel(prop) + '">' + prop + '</td>';
-                    desc += '<td class="prop-value' + (props[prop] === missingValue ? ' prop-value-missing' : '') + '">' + props[prop] + '</td></tr> ';
-                    
-                });
-                desc += '</table>';
-            }
+            desc += '<h4 class="featureInfo__propLevelHeading featureInfo__propLevelHeading_' + level + '">' + level + ' fields</h4>';
+            desc += '<table>' +
+                levelProps.map(prop =>
+                    '<tr><td class="' + 'prop-key prop-key-' + getPropLevel(prop) + '">' + prop + '</td>' +
+                    '<td class="prop-value' + (props[prop] === missingValue ? ' prop-value-missing' : '') + '">' + props[prop] + '</td></tr> '
+                ).join`` +
+            '</table>';
+        
         });
-        return desc + '</table>';
+        return desc;
     }
     
-
-    //if (!mapid)
-    //    return;
 
     // uh, how do we remove an event handler?
     if (!d3.select(`#${topic}-map`).classed('not-loaded'))
@@ -156,10 +159,11 @@ module.exports = function (topic, mapid) {
                 url: 'mapbox://opencouncildata.' + (topics[topic].tilesetid ? topics[topic].tilesetid : topic) + '?fresh=3'
             };
             // console.log(style.sources);
-            style.layers.push(mapPolygonLayer('data-polygons', '240'));
-            style.layers.push(mapPolygonLayer('data-polygons-good', '95', ['has', 'rub_day']));
+            // Currently we naively create all types of layers for all topics.
+            style.layers.push(mapPolygonLayer('data-polygons', 10));
+            style.layers.push(mapPolygonLayer('data-polygons-good', 95, ['has', 'rub_day']));
             style.layers.push(mapPointLayer('data-points', def(topics[topic].icon, 'star-15'), 'hsl(100,80%,70%)'));
-            style.layers.push(mapLineLayer('data-lines', '180'));
+            style.layers.push(mapLineLayer('data-lines', 180));
             if (topics[topic].polygons && topics[topic].polygons.points) {
                 var pp = topics[topic].polygons.points;
                 var layer = mapPointLayer('data-polygon-points', def(pp.icon, 'roadblock-15'), 'hsl(240,80%,70%)', def(pp.maxzoom, 12));
