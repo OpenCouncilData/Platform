@@ -125,6 +125,9 @@ function showFeatureCounts(featureData) {
     featureData.rows.forEach(row => {
         var topic = row.key[0];
         var council = row.key[1];
+        if (topics[topic] === undefined) {
+            return; // Our database has a topic which isn't recognised by the front end. Just ignore it.
+        }
         topics[topic]._councilCount = (topics[topic]._councilCount || 0) + 1;
         topics[topic]._councilCounts = def(topics[topic]._councilCounts, []);
         topics[topic]._councilCounts.push([council, row.value]); //[council] = row.value;
