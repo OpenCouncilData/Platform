@@ -204,5 +204,11 @@ module.exports = function (topic, mapid) {
                 //console.log(features);
             }
         });
+
+        map.on('error', e => {
+            // Hide those annoying non-error errors
+            if (e && e.error !== 'Error: Not Found')
+                console.error(e);
+        });
     });
-}
+};
