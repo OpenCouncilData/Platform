@@ -46129,9 +46129,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 'use strict';
 
 var d3 = require('d3');
-var mapboxgl = require('mapbox-gl');
-mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwbzAydGtpM2duazY5a3IifQ.PY_k9Uatmkim9wRheztCag';
 var mdl = require('material-design-lite'); // not sure if this is doing anything
+var previewMap = require('./previewMap');
 /* jshint esnext:true */
 
 /*
@@ -46148,10 +46147,126 @@ var def = function def(x, y) {
 };
 var topics = require('./topics');
 
-var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
-'x', 'y', 'lat', 'lon', 'long', 'lng', 'latitude', 'longitude', 'easting', 'northing', 'shapestarea', 'shapestlength'];
+//Key:herearrytophatharmstrand
+//Password:b0a2cba35d8ddad25ccf27ff0291086312407168
 
-function makeMap(topic, mapid) {
+function topicHtml(topic) {
+    return '    <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">    <div class="mdl-card mdl-cell mdl-cell--12-col">      <div class="mdl-card__supporting-text"> \n        <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>      </div>' + (
+    //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
+    //
+    topics[topic].standard ? '  <div class="standardlink">Standard: <a target="_blank" href="' + topics[topic].standard + '">' + topics[topic].standard + '</a></div>' : 'NAW') + (
+
+    /*    '  <div class="mdl-card__actions">' + 
+        '    <a href="#" class="mdl-button">Map preview</a>' + 
+        '  </div>' + */
+    // extra div so that features sit alongside map
+    '<div>\n    <div id="' + topic + '-map" class="preview-map not-loaded">\n        <div class="preview-map-placeholder">Click for preview map</div>\n    </div>\n    <div id="' + topic + '-featureinfo" class="feature-info"></div>\n    </div>\n    <div class="' + topic + ' feature-count">\n        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">\n        <thead>\n            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>\n        </thead>\n        <tbody></tbody>\n        </table>\n    </div>');
+}
+
+/*
+Construct a page section for each topic, with a placeholder for a preview map.
+*/
+function addTopicSections() {
+
+    // Add main sections to body
+    d3.select('#overview').selectAll('.topic-section').data(Object.keys(topics)).enter().append('section').html(topicHtml);
+
+    Object.keys(topics).forEach(function (topic) {
+        d3.select('#' + topic + '-map').on('click', function () {
+            return previewMap(topic /*, topics[topic].mapid*/);
+        });
+    });
+
+    // Create the map preview in each newly created section
+    //  Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
+
+    /* Not yet ready.
+    d3.select('main')
+    .append('section')
+    .classed('mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section', true)
+    .html('<div class="mdl-card mdl-cell mdl-cell--12-col">' + 
+        '  <div class="mdl-card__supporting-text">' + 
+        '    <a name="Developers"><h4>Developers</h4></a>' + 
+        '  </div>' +
+        require('./developers.md') + 
+        '</div>');
+    */
+}
+
+//topics = [['garbage-collection-zones', 'Garbage collection zones', 'ciwhgji33009f2ql7j52uo0ui']];
+//topics = [['dog-walking-zones', 'Dog-walking Zones', 'ciwfubtet00582qqouh3szxd4']];
+
+/*
+Construct list of topic links. If council data is available (fetched from Cloudant), then also show the number of councils with data for each topic.
+*/
+
+function makeSidebarLinks() {
+    // Add links to left side bar
+    var links = d3.select('.mdl-layout__drawer .mdl-navigation').selectAll('span.sidebar-link').data(Object.keys(topics));
+
+    links.enter().append('span').merge(links).classed('sidebar-link', true)
+    //.classed('mdl-badge', topic => topics[topic]._councilCount )
+    //.attr('data-badge', topic => topics[topic]._councilCount)
+    .html(function (topic) {
+        var count = '';
+        if (topics[topic]._councilCount) {
+            //count = '33';
+            count = '&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">' + topics[topic]._councilCount + '</span>';
+        }
+        //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
+        return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+        //return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
+    });
+}
+
+// get counts of features per council, and hence display number of councils per topic (side bar) and feature counts (per topic)
+function showFeatureCounts(featureData) {
+    // group_level=2 is important here    
+    featureData.rows.forEach(function (row) {
+        var topic = row.key[0];
+        var council = row.key[1];
+        if (topics[topic] === undefined) {
+            return; // Our database has a topic which isn't recognised by the front end. Just ignore it.
+        }
+        topics[topic]._councilCount = (topics[topic]._councilCount || 0) + 1;
+        topics[topic]._councilCounts = def(topics[topic]._councilCounts, []);
+        topics[topic]._councilCounts.push([council, row.value]); //[council] = row.value;
+    });
+    makeSidebarLinks();
+
+    Object.keys(topics).forEach(function (topic) {
+        d3.select('.' + topic + '.feature-count tbody').selectAll('tr').data(def(topics[topic]._councilCounts, [])).enter().append('tr').html(function (d) {
+            return '<td>' + d[0] + '</td><td>' + d[1] + '</td>';
+        });
+    });
+}
+
+var topicCoverageURL = 'https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCoverage?reduce=true&group_level=2&limit=5000';
+
+addTopicSections();
+makeSidebarLinks();
+d3.json(topicCoverageURL, showFeatureCounts);
+
+},{"./previewMap":218,"./topics":219,"d3":2,"material-design-lite":193}],218:[function(require,module,exports){
+'use strict';
+
+var _templateObject = _taggedTemplateLiteral([''], ['']);
+
+function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+/* jshint esnext:true */
+var topics = require('./topics');
+var def = function def(x, y) {
+    return x !== undefined ? x : y;
+};
+var d3 = require('d3');
+var mapboxgl = require('mapbox-gl');
+mapboxgl.accessToken = 'pk.eyJ1Ijoib3BlbmNvdW5jaWxkYXRhIiwiYSI6ImNpd2ZzenhyYzAwbzAydGtpM2duazY5a3IifQ.PY_k9Uatmkim9wRheztCag';
+
+/*
+  Create a map preview element, constructing and styling a Mapbox map.
+*/
+module.exports = function (topic, mapid) {
     function layerFilter(layerType, filter) {
         var typeFilter = ['==', '$type', layerType];
         return filter ? ['all', filter, typeFilter] : typeFilter;
@@ -46167,6 +46282,7 @@ function makeMap(topic, mapid) {
             'source-layer': topics[topic].layerid ? topics[topic].layerid : topic // hopefully we never need this.
         };
     }
+    // create a polygon based layer for a given datasource id.
     function mapPolygonLayer(id, hue, filter) {
         var layer = mapLayer(id, 'Polygon', filter);
         layer.type = 'fill';
@@ -46178,6 +46294,7 @@ function makeMap(topic, mapid) {
         return layer;
     }
 
+    // create a line based layer for a given datasource id.
     function mapLineLayer(id, hue, filter) {
         var layer = mapLayer(id, 'LineString', filter);
         layer.type = 'line';
@@ -46189,20 +46306,26 @@ function makeMap(topic, mapid) {
         return layer;
     }
 
+    // create a symbol based layer for a given datasource id.
     function mapPointLayer(id, icon, textColor, maxzoom, filter) {
         var layer = mapLayer(id, 'Point', filter);
         layer.type = 'symbol';
         layer.layout = {
             'visibility': 'visible',
-            'text-field': '{name}',
-            'text-size': 12,
-            'text-anchor': 'left',
-            'text-offset': [0.7, 0],
             'icon-image': icon,
             'icon-allow-overlap': true,
             'icon-ignore-placement': true,
-            'text-optional': true,
-            'icon-size': { stops: [[8, 0.5], [11, 1]] }
+            'icon-size': { stops: [[8, 0.5], [11, 1]] },
+            'text-field': '{name}',
+            'text-size': {
+                stops: [[14, 10], [16, 16]]
+            },
+            'text-anchor': 'left',
+            'text-offset': [0.7, 0],
+            'text-allow-overlap': false,
+            'text-ignore-placement': true,
+            'text-optional': true
+
         };
         if (icon) layer.layout['icon-image'] = icon;
         if (maxzoom) layer.maxzoom = maxzoom;
@@ -46211,15 +46334,20 @@ function makeMap(topic, mapid) {
             'text-halo-color': 'hsl(0,0%,20%)',
             'text-halo-width': 2,
             'text-opacity': {
-                stops: [[8, 0], [10, 1]]
+                stops: [[12, 0], [14, 1]]
             }
 
         };
         return layer;
     }
-
+    /*
+        Turn the set of available properties for a feature into an HTML description that highlights the level of compliance
+        with the standard.
+    */
     function propsToFeatureDesc(props, topic) {
         var missingValue = '&nbsp;'; //'&lt;MISSING&gt;';
+        var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
+        'x', 'y', 'lat', 'lon', 'long', 'lng', 'latitude', 'longitude', 'easting', 'northing', 'shapestarea', 'shapestlength'];
 
         function getPropLevel(prop) {
             var ret = 'non-standard';
@@ -46231,6 +46359,7 @@ function makeMap(topic, mapid) {
             return ret;
         }
 
+        // Add a placeholder value for missing property values, so the omission is visible.
         function addMissingProps(props) {
             topics[topic].required.forEach(function (key) {
                 if (props[key] === undefined) {
@@ -46252,23 +46381,15 @@ function makeMap(topic, mapid) {
                 return getPropLevel(prop) === level.toLowerCase() && hiddenFields.indexOf(prop.toLowerCase()) < 0;
             });
 
-            if (levelProps.length) {
-                desc += '<h4 class="featureInfo__propLevelHeading featureInfo__propLevelHeading_' + level + '">' + level + ' fields</h4>';
-                desc += '<table>';
+            if (!levelProps.length) return;
 
-                //sortKeys(Object.keys(props)).
-                levelProps.forEach(function (prop) {
-                    desc += '<tr><td class="' + 'prop-key prop-key-' + getPropLevel(prop) + '">' + prop + '</td>';
-                    desc += '<td class="prop-value' + (props[prop] === missingValue ? ' prop-value-missing' : '') + '">' + props[prop] + '</td></tr> ';
-                });
-                desc += '</table>';
-            }
+            desc += '<h4 class="featureInfo__propLevelHeading featureInfo__propLevelHeading_' + level + '">' + level + ' fields</h4>';
+            desc += '<table>' + levelProps.map(function (prop) {
+                return '<tr><td class="' + 'prop-key prop-key-' + getPropLevel(prop) + '">' + prop + '</td>' + '<td class="prop-value' + (props[prop] === missingValue ? ' prop-value-missing' : '') + '">' + props[prop] + '</td></tr> ';
+            }).join(_templateObject) + '</table>';
         });
-        return desc + '</table>';
+        return desc;
     }
-
-    //if (!mapid)
-    //    return;
 
     // uh, how do we remove an event handler?
     if (!d3.select('#' + topic + '-map').classed('not-loaded')) return;
@@ -46287,10 +46408,11 @@ function makeMap(topic, mapid) {
                 url: 'mapbox://opencouncildata.' + (topics[topic].tilesetid ? topics[topic].tilesetid : topic) + '?fresh=3'
             };
             // console.log(style.sources);
-            style.layers.push(mapPolygonLayer('data-polygons', '240'));
-            style.layers.push(mapPolygonLayer('data-polygons-good', '95', ['has', 'rub_day']));
+            // Currently we naively create all types of layers for all topics.
+            style.layers.push(mapPolygonLayer('data-polygons', 10));
+            style.layers.push(mapPolygonLayer('data-polygons-good', 95, ['has', 'rub_day']));
             style.layers.push(mapPointLayer('data-points', def(topics[topic].icon, 'star-15'), 'hsl(100,80%,70%)'));
-            style.layers.push(mapLineLayer('data-lines', '180'));
+            style.layers.push(mapLineLayer('data-lines', 180));
             if (topics[topic].polygons && topics[topic].polygons.points) {
                 var pp = topics[topic].polygons.points;
                 var layer = mapPointLayer('data-polygon-points', def(pp.icon, 'roadblock-15'), 'hsl(240,80%,70%)', def(pp.maxzoom, 12));
@@ -46321,120 +46443,23 @@ function makeMap(topic, mapid) {
                 //console.log(features);
             }
         });
-    });
-}
-//Key:herearrytophatharmstrand
-//Password:b0a2cba35d8ddad25ccf27ff0291086312407168
 
-
-function topicHtml(topic) {
-    return '    <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">    <div class="mdl-card mdl-cell mdl-cell--12-col">      <div class="mdl-card__supporting-text"> \n        <a name="' + topic + '"><h4>' + topics[topic].title + '</h4></a>      </div>' + (
-    //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
-    //
-    topics[topic.standard] ? '  <div class="standardlink">Standard: <a target="_blank" href="' + topics[topic].standard + '">' + topics[topic].standard + '</a></div>' : '') + (
-
-    /*    '  <div class="mdl-card__actions">' + 
-        '    <a href="#" class="mdl-button">Map preview</a>' + 
-        '  </div>' + */
-    // extra div so that features sit alongside map
-    '<div>    <div id="' + topic + '-map" class="preview-map not-loaded">        <div class="preview-map-placeholder">Click for preview map</div>    </div>    <div id="' + topic + '-featureinfo" class="feature-info"></div>    </div>    <div class="' + topic + ' feature-count">        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">        <thead>            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>        </thead>        <tbody></tbody>        </table>    </div>');
-}
-
-Object.keys(topics).forEach(function (topic) {
-    if (topics[topic].required === undefined) topics[topic].required = [];
-    if (topics[topic].recommended === undefined) topics[topic].recommended = [];
-    if (topics[topic].optional === undefined) topics[topic].optional = [];
-});
-
-['rub', 'grn', 'rec', 'hw'].forEach(function (waste) {
-    ['_day', '_weeks', '_start'].forEach(function (attr) {
-        if (waste === 'rub') topics['garbage-collection-zones'].required.push(waste + attr);else topics['garbage-collection-zones'].recommended.push(waste + attr);
-    });
-    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(function (attr) {
-        topics['garbage-collection-zones'].optional.push(waste + attr);
-    });
-});
-
-//topics = [['garbage-collection-zones', 'Garbage collection zones', 'ciwhgji33009f2ql7j52uo0ui']];
-//topics = [['dog-walking-zones', 'Dog-walking Zones', 'ciwfubtet00582qqouh3szxd4']];
-
-function makeSidebarLinks() {
-    // Add links to left side bar
-    var links = d3.select('.mdl-layout__drawer .mdl-navigation').selectAll('span.sidebar-link').data(Object.keys(topics));
-
-    links.enter().append('span').merge(links).classed('sidebar-link', true)
-    //.classed('mdl-badge', topic => topics[topic]._councilCount )
-    //.attr('data-badge', topic => topics[topic]._councilCount)
-    .html(function (topic) {
-        var count = '';
-        if (topics[topic]._councilCount) {
-            //count = '33';
-            count = '&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">' + topics[topic]._councilCount + '</span>';
-        }
-        //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
-        return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
-        //return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
-    });
-}
-
-function addTopicSections() {
-
-    // Add main sections to body
-    d3.select('#overview').selectAll('.topic-section').data(Object.keys(topics)).enter().append('section').html(topicHtml);
-
-    Object.keys(topics).forEach(function (topic) {
-        d3.select('#' + topic + '-map').on('click', function () {
-            return makeMap(topic /*, topics[topic].mapid*/);
+        map.on('error', function (e) {
+            // Hide those annoying non-error errors
+            if (e && e.error !== 'Error: Not Found') console.error(e);
         });
     });
+};
 
-    // Create the map preview in each newly created section
-    //  Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
-    //  
-    //  
-    /* Not yet ready.
-    d3.select('main')
-    .append('section')
-    .classed('mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section', true)
-    .html('<div class="mdl-card mdl-cell mdl-cell--12-col">' + 
-        '  <div class="mdl-card__supporting-text">' + 
-        '    <a name="Developers"><h4>Developers</h4></a>' + 
-        '  </div>' +
-        require('./developers.md') + 
-        '</div>');
-    */
-}
-
-// get counts of features per council, and hence display topic coverage (side bar) and feature counts (per topic)
-function showFeatureCounts() {
-    // group_level=2 is important here
-    d3.json('https://opencouncildata.cloudant.com/test1/_design/features/_view/topicCoverage?reduce=true&group_level=2&limit=5000', function (data) {
-
-        data.rows.forEach(function (row) {
-            var topic = row.key[0];
-            var council = row.key[1];
-            topics[topic]._councilCount = (topics[topic]._councilCount || 0) + 1;
-            topics[topic]._councilCounts = def(topics[topic]._councilCounts, []);
-            topics[topic]._councilCounts.push([council, row.value]); //[council] = row.value;
-        });
-        makeSidebarLinks();
-
-        Object.keys(topics).forEach(function (topic) {
-            d3.select('.' + topic + '.feature-count tbody').selectAll('tr').data(def(topics[topic]._councilCounts, [])).enter().append('tr').html(function (d) {
-                return '<td>' + d[0] + '</td><td>' + d[1] + '</td>';
-            });
-        });
-    });
-}
-
-addTopicSections();
-makeSidebarLinks();
-showFeatureCounts();
-
-},{"./topics":218,"d3":2,"mapbox-gl":86,"material-design-lite":193}],218:[function(require,module,exports){
+},{"./topics":219,"d3":2,"mapbox-gl":86}],219:[function(require,module,exports){
 'use strict';
 
-module.exports = {
+/* jshint esnext:true */
+var def = function def(x, y) {
+    return x !== undefined ? x : y;
+};
+
+var topics = {
     // title: Shown in interface
     // tilesetid: If the tileset ID in mapbox isn't opencouncildata.[topic]
     // mapid: Show a pre-canned map instead of generating a style
@@ -46502,12 +46527,17 @@ module.exports = {
         recommended: ['address', 'capacity', 'accessible', 'access', 'image', 'url', 'description', 'fee_desc', 'facilities'],
         optional: ['notes', 'alcohol', 'phone', 'email', 'form_url', 'dimensions', 'ref'],
         icon: 'triangle-stroked-15',
-        standard: 'http://standards.opencouncildata.org/#/wards'
+        standard: 'http://standards.opencouncildata.org/#/venues-for-hire'
     },
     'wards': {
         title: 'Voting wards',
         recommended: ['name'],
         standard: 'http://standards.opencouncildata.org/#/wards'
+    },
+    'property-boundaries': {
+        title: 'Property boundaries',
+        recommended: ['name'],
+        standard: 'http://standards.opencouncildata.org/#/property-boundaries'
     },
     'parks': {
         title: 'Parks and open spaces',
@@ -46544,8 +46574,33 @@ module.exports = {
                 icon: 'roadblock-15'
             }
         }
+    },
+    'street-furniture': {
+        title: 'Street furniture',
+        standard: 'http://standards.opencouncildata.org/#/street-furniture',
+        icon: 'star-15',
+        required: ['type'],
+        recommended: ['ref', 'operator'],
+        optional: ['desc']
     }
 
 };
+
+Object.keys(topics).forEach(function (topic) {
+    ['required', 'recommended', 'optional'].forEach(function (level) {
+        return topics[topic][level] = def(topics[topic][level], []);
+    });
+});
+
+['rub', 'grn', 'rec', 'hw'].forEach(function (waste) {
+    ['_day', '_weeks', '_start'].forEach(function (attr) {
+        if (waste === 'rub') topics['garbage-collection-zones'].required.push(waste + attr);else topics['garbage-collection-zones'].recommended.push(waste + attr);
+    });
+    ['_desc', '_ok', '_notok', '_url', '_name'].forEach(function (attr) {
+        topics['garbage-collection-zones'].optional.push(waste + attr);
+    });
+});
+
+module.exports = topics;
 
 },{}]},{},[217]);
