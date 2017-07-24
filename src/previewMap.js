@@ -95,7 +95,7 @@ module.exports = function (topic, mapid) {
         with the standard.
     */
     function propsToFeatureDesc(props, topic) {
-        var missingValue = '&nbsp;'; //'&lt;MISSING&gt;';
+        var missingValue = '&nbsp;(no value)'; //'&lt;MISSING&gt;';
         var hiddenFields = [
             'opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
             'x','y','lat','lon','long','lng','latitude','longitude', 'easting','northing', 
@@ -158,6 +158,7 @@ module.exports = function (topic, mapid) {
     d3.json(styleUrl, style => {
         d3.select(`#${topic}-map`).classed('not-loaded', false);
         d3.select(`#${topic}-map .preview-map-placeholder`).remove();
+        d3.select(`#${topic}-map .preview-map-legend`).style('display','block');
         if (topics[topic].mapid !== undefined) {
             style = 'mapbox://styles/opencouncildata/' + topics[topic].mapid;
         } else {
@@ -168,8 +169,15 @@ module.exports = function (topic, mapid) {
             };
             // console.log(style.sources);
             // Currently we naively create all types of layers for all topics.
-            style.layers.push(mapPolygonLayer('data-polygons', 10));
-            style.layers.push(mapPolygonLayer('data-polygons-good', 95, ['has', 'rub_day']));
+            // TODO: we shouldn't draw 'data-polygons' under 'data-polygons-good'
+            style.layers.push(mapPolygonLayer('data-polygons', 10)); // keep in sync with datastyles.css
+            var requiredFields;
+            if (topics[topic].required) {
+                requiredFields = ['all', 
+                    ...topics[topic].required.map(fieldName => ['has', fieldName])];
+            }
+            
+            style.layers.push(mapPolygonLayer('data-polygons-good', 95, requiredFields)); // keep in sync with datastyles.css
             style.layers.push(mapPointLayer('data-points', def(topics[topic].icon, 'star-15'), 'hsl(100,80%,70%)'));
             style.layers.push(mapLineLayer('data-lines', 180));
             if (topics[topic].polygons && topics[topic].polygons.points) {

@@ -46160,7 +46160,7 @@ function topicHtml(topic) {
         '    <a href="#" class="mdl-button">Map preview</a>' + 
         '  </div>' + */
     // extra div so that features sit alongside map
-    '<div>\n    <div id="' + topic + '-map" class="preview-map not-loaded">\n        <div class="preview-map-placeholder">Click for preview map</div>\n    </div>\n    <div id="' + topic + '-featureinfo" class="feature-info"></div>\n    </div>\n    <div class="' + topic + ' feature-count">\n        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">\n        <thead>\n            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>\n        </thead>\n        <tbody></tbody>\n        </table>\n    </div>');
+    '<div>\n    <div id="' + topic + '-map" class="preview-map not-loaded">\n        <div class="preview-map-placeholder">Click for preview map</div>\n        <div class="preview-map-legend">\n        <span class="preview-map-legend__good">&nbsp;</span>Good<br>\n        <span class="preview-map-legend__noncompliant">&nbsp;</span>Non-compliant<br>\n        </div>\n    </div>\n    <div id="' + topic + '-featureinfo" class="feature-info"></div>\n    </div>\n    <div class="' + topic + ' feature-count">\n        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">\n        <thead>\n            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>\n        </thead>\n        <tbody></tbody>\n        </table>\n    </div>');
 }
 
 /*
@@ -46211,7 +46211,7 @@ function makeSidebarLinks() {
         var count = '';
         if (topics[topic]._councilCount) {
             //count = '33';
-            count = '&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">' + topics[topic]._councilCount + '</span>';
+            count = '&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue" title="' + topics[topic]._councilCount + ' councils publish data on this topic.">' + topics[topic]._councilCount + '</span>';
         }
         //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
         return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
@@ -46251,6 +46251,8 @@ d3.json(topicCoverageURL, showFeatureCounts);
 'use strict';
 
 var _templateObject = _taggedTemplateLiteral([''], ['']);
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -46345,7 +46347,7 @@ module.exports = function (topic, mapid) {
         with the standard.
     */
     function propsToFeatureDesc(props, topic) {
-        var missingValue = '&nbsp;'; //'&lt;MISSING&gt;';
+        var missingValue = '&nbsp;(no value)'; //'&lt;MISSING&gt;';
         var hiddenFields = ['opencouncildatatopic', 'sourcecouncilid', 'sourceurl', // fields created by us, we should clean these up - _prefixed?
         'x', 'y', 'lat', 'lon', 'long', 'lng', 'latitude', 'longitude', 'easting', 'northing', 'shapestarea', 'shapestlength'];
 
@@ -46399,6 +46401,7 @@ module.exports = function (topic, mapid) {
     d3.json(styleUrl, function (style) {
         d3.select('#' + topic + '-map').classed('not-loaded', false);
         d3.select('#' + topic + '-map .preview-map-placeholder').remove();
+        d3.select('#' + topic + '-map .preview-map-legend').style('display', 'block');
         if (topics[topic].mapid !== undefined) {
             style = 'mapbox://styles/opencouncildata/' + topics[topic].mapid;
         } else {
@@ -46409,8 +46412,16 @@ module.exports = function (topic, mapid) {
             };
             // console.log(style.sources);
             // Currently we naively create all types of layers for all topics.
-            style.layers.push(mapPolygonLayer('data-polygons', 10));
-            style.layers.push(mapPolygonLayer('data-polygons-good', 95, ['has', 'rub_day']));
+            // TODO: we shouldn't draw 'data-polygons' under 'data-polygons-good'
+            style.layers.push(mapPolygonLayer('data-polygons', 10)); // keep in sync with datastyles.css
+            var requiredFields;
+            if (topics[topic].required) {
+                requiredFields = ['all'].concat(_toConsumableArray(topics[topic].required.map(function (fieldName) {
+                    return ['has', fieldName];
+                })));
+            }
+
+            style.layers.push(mapPolygonLayer('data-polygons-good', 95, requiredFields)); // keep in sync with datastyles.css
             style.layers.push(mapPointLayer('data-points', def(topics[topic].icon, 'star-15'), 'hsl(100,80%,70%)'));
             style.layers.push(mapLineLayer('data-lines', 180));
             if (topics[topic].polygons && topics[topic].polygons.points) {
@@ -46517,7 +46528,9 @@ var topics = {
     },
     'childcare-centres': {
         title: 'Childcare centres',
-        recommended: ['name'],
+        required: ['name'],
+        recommended: ['operator', 'contact_ph', 'url'],
+        optional: ['ref'],
         icon: 'star-15',
         standard: 'http://standards.opencouncildata.org/#/childcare_centres'
     },
@@ -46532,6 +46545,7 @@ var topics = {
     'wards': {
         title: 'Voting wards',
         recommended: ['name'],
+        optional: ['councillor', 'portfolio', 'lga'],
         standard: 'http://standards.opencouncildata.org/#/wards'
     },
     'property-boundaries': {

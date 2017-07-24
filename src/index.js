@@ -36,6 +36,10 @@ function topicHtml(topic) {
     `<div>
     <div id="${topic}-map" class="preview-map not-loaded">
         <div class="preview-map-placeholder">Click for preview map</div>
+        <div class="preview-map-legend">
+        <span class="preview-map-legend__good">&nbsp;</span>Good<br>
+        <span class="preview-map-legend__noncompliant">&nbsp;</span>Non-compliant<br>
+        </div>
     </div>
     <div id="${topic}-featureinfo" class="feature-info"></div>
     </div>
@@ -111,7 +115,7 @@ function makeSidebarLinks() {
             var count='';
             if (topics[topic]._councilCount) {
                 //count = '33';
-                count = `&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue">${topics[topic]._councilCount}</span>`;
+                count = `&nbsp;&nbsp;<span class="topic-council-count mdl-color-text--blue" title="${topics[topic]._councilCount} councils publish data on this topic.">${topics[topic]._councilCount}</span>`;
             }
             //var count = topics[topic]._councilCount ? (` (${topics[topic]._councilCount})`) : '';
             return '<a class="mdl-navigation__link" href="#' + topic + '">' + topics[topic].title + count + '</a>';
