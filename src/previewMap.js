@@ -54,15 +54,23 @@ module.exports = function (topic, mapid) {
         layer.type = 'symbol';
         layer.layout = {
             'visibility': 'visible',
-            'text-field': '{name}',
-            'text-size':  12,
-            'text-anchor': 'left',
-            'text-offset': [0.7, 0],
             'icon-image': icon,
             'icon-allow-overlap': true,
             'icon-ignore-placement': true,
-            'text-optional': true,
-            'icon-size': { stops: [[8, 0.5], [11, 1]]}
+            'icon-size': { stops: [[8, 0.5], [11, 1]]},
+            'text-field': '{name}',
+            'text-size':  {
+                stops: [
+                    [14, 10],
+                    [16, 16]
+                ]
+            },
+            'text-anchor': 'left',
+            'text-offset': [0.7, 0],
+            'text-allow-overlap': false,
+            'text-ignore-placement': true,
+            'text-optional': true
+            
         };
         if (icon)
             layer.layout['icon-image'] = icon;
@@ -74,8 +82,8 @@ module.exports = function (topic, mapid) {
             'text-halo-width': 2,
             'text-opacity': {
                 stops: [
-                    [8, 0],
-                    [10, 1]
+                    [12, 0],
+                    [14, 1]
                 ]
             }
 
