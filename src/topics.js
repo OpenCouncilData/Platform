@@ -1,3 +1,4 @@
+/* jshint esnext:true */
 const def = (x, y) => x !== undefined ? x : y;
 
 let topics = {
@@ -75,6 +76,11 @@ let topics = {
         recommended: ['name'],
         standard: 'http://standards.opencouncildata.org/#/wards'        
     },
+    'property-boundaries': {
+        title: 'Property boundaries',
+        recommended: ['name'],
+        standard: 'http://standards.opencouncildata.org/#/property-boundaries'        
+    },
     'parks': {
         title: 'Parks and open spaces',
         tilesetid: 'cco2avfu',
@@ -110,6 +116,14 @@ let topics = {
                 icon: 'roadblock-15'
             }
         }
+    },
+    'street-furniture': {
+        title:'Street furniture',
+        standard: 'http://standards.opencouncildata.org/#/street-furniture',
+        icon: 'star-15',
+        required: ['type'],
+        recommended: ['ref', 'operator'],
+        optional: ['desc']
     }
     
 };
