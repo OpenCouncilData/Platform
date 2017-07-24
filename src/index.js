@@ -33,19 +33,19 @@ function topicHtml(topic) {
     '    <a href="#" class="mdl-button">Map preview</a>' + 
     '  </div>' + */
     // extra div so that features sit alongside map
-    `<div>\
-    <div id="${topic}-map" class="preview-map not-loaded">\
-        <div class="preview-map-placeholder">Click for preview map</div>\
-    </div>\
-    <div id="${topic}-featureinfo" class="feature-info"></div>\
-    </div>\
-    <div class="${topic} feature-count">\
-        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">\
-        <thead>\
-            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>\
-        </thead>\
-        <tbody></tbody>\
-        </table>\
+    `<div>
+    <div id="${topic}-map" class="preview-map not-loaded">
+        <div class="preview-map-placeholder">Click for preview map</div>
+    </div>
+    <div id="${topic}-featureinfo" class="feature-info"></div>
+    </div>
+    <div class="${topic} feature-count">
+        <table class="-mdl-data-table -mdl-js-data-table mdl-shadow--2dp">
+        <thead>
+            <tr><th class="-mdl-data-table__cell--non-numeric">Council</th><th>Number of features</th></tr>
+        </thead>
+        <tbody></tbody>
+        </table>
     </div>`;
 }
 
