@@ -59,7 +59,9 @@ let topics = {
     },
     'childcare-centres': {
         title: 'Childcare centres',
-        recommended: ['name'],
+        required:['name'],
+        recommended: ['operator','contact_ph','url'],
+        optional:['ref'],
         icon: 'star-15',
         standard: 'http://standards.opencouncildata.org/#/childcare_centres'
     },
@@ -74,6 +76,7 @@ let topics = {
     'wards': {
         title: 'Voting wards',
         recommended: ['name'],
+        optional: ['councillor','portfolio','lga'],
         standard: 'http://standards.opencouncildata.org/#/wards'        
     },
     'property-boundaries': {
