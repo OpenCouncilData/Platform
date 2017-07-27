@@ -1,14 +1,21 @@
-## Developers
-
 The Open Council Data platform contains two APIs. While the platform is in development (and traffic is low enough that running costs are negligible), both APIs are available unrestricted and free of charge.
+
+Data is accessible through two APIs:
+
+- Cloudant, for querying, including geospatial querying.
+- Mapbox, for displaying directly on a map.
 
 ### CloudAnt 
 
-IBM's CloudAnt is a NoSQL JSON database platform. The Open Council Data features database contains one row (document) for every feature from every source dataset. You can:
+IBM's [CloudAnt](https://www.ibm.com/analytics/us/en/technology/cloud-data-services/cloudant/) is a NoSQL JSON database platform, based on [Apache CouchDB](http://couchdb.apache.org/). Being NoSQL means it is a collection of "documents" with attributes that can differ, rather than a strict table structure. (See [Cloudant Basics](https://console.bluemix.net/docs/services/Cloudant/basics/index.html#cloudant-basics).)
+
+The Open Council Data features database contains one row (document) for every feature from every source dataset. You can:
 
 - access all attributes and geometry for any individual feature
 - use filters to find any feature with certain properties
 - use spatial indexes to run queries such as "which garbage collection zone is point X within", "what are the nearest 5 childcare centers to point X" and so on.
+
+[Cloudant query documentation](https://console.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#query).
 
 #### Spatial queries
   
@@ -111,11 +118,27 @@ For more information about queries, see the [CloudAnt documentation](https://doc
 
 ### Mapbox
 
-Mapbox is a mapping platform used to create dynamic visualisations of large map datasets. There is one Mapbox tileset for each dataset, which are used to display the map previews above.
+Mapbox is a mapping platform used to create dynamic visualisations of large map datasets. Each topic has been uploaded to Mapbox as a separate [tileset](https://www.mapbox.com/help/define-tileset/), which are used to show the map previews. You could also display these tilesets on your own Mapbox maps, styled however you like. 
 
+Each tileset name matches its topic name, and is stored under the `opencouncildata` account. Hence, the tileset ID is `mapbox://opencouncildata.[topicname]` .
 
+Each tileset contains one layer, which is also the topic name.
 
-OSM
-Licence - ODbL
-Why we want our info in it
-How
+For example, to add a layer of circles representing public toilets:
+
+```
+  map.addLayer({
+    id: 'toilet-points',
+    type: 'circle',
+    source: {
+      type: 'vector',
+      url: 'mapbox://opencouncildata.public-toilets'
+    },
+    'source-layer': 'public-toilets',
+    paint: {
+      'circle-color': '#48e'
+    }
+  })
+```
+
+A complete example is here: https://codepen.io/stevebennett/pen/RZPyqR
