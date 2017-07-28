@@ -13,7 +13,6 @@ let topics = {
 
     'garbage-collection-zones': { 
         title: 'Garbage collection zones', 
-        //tilesetid: 'dqpcmlth',
         //mapid: 'ciwhgji33009f2ql7j52uo0ui',
         recommended: ['name'], // plus more, see below
         optional: ['info_url'],
@@ -25,10 +24,9 @@ let topics = {
         recommended: ['name','female','male','wheelchair','trsfr_side','week_open','week_close','sat_open','sat_close','sun_open','sun_close'],
         optional: ['comment','access_cmt','needle_bin','operator','drink_tap'],
         standard: 'http://standards.opencouncildata.org/#/toilets'
-    } , // mapid: 'ciwhghnv300802qqoyubh8j3h', 
+    } , 
     'dog-walking-zones': { 
         title: 'Dog-walking Zones', 
-        //mapid: 'ciwfubtet00582qqouh3szxd4',
         required: [ 'status' ],
         recommended: [ 'name', 'regulation', 'comment', 'off_rules' ],
         icon: 'dog-park-15',
@@ -42,7 +40,6 @@ let topics = {
         recommended: [ 'updated', 'ref'],
         optional: [ 'start', 'end', 'days', 'minsmax', 'hourlyfee','onlyfor', 'notfor' ],
         standard: 'http://standards.opencouncildata.org/#/parkingzones'
-        //mapid: 'ciwpknpc200jn2ppaix6pozuc'
      },
     //'footpaths': { title: 'Footpaths' },
     'customer-service-centres': { 
@@ -53,9 +50,11 @@ let topics = {
     },  /*, mapid: 'ciwhs1gi7009g2qmt41ftdmmi' */    
     'facilities': {
         title: 'Facilities',
-        recommended: ['name'],
         icon: 'star-15',
-        standard: 'http://standards.opencouncildata.org/#/facilities'
+        standard: 'http://standards.opencouncildata.org/#/facilities',
+        required: ['name','type'],
+        recommended: ['owned_by','managed_by','contact_ph','url','subtype','address','access','monday','tuesday','wednesday','thursday','friday','saturday','sunday','holiday','desc'],
+        optional: ['type2','ref']
     },
     'childcare-centres': {
         title: 'Childcare centres',
@@ -86,7 +85,6 @@ let topics = {
     },
     'parks': {
         title: 'Parks and open spaces',
-        tilesetid: 'cco2avfu',
         minZoom: 3,
         required: ['name'],
         recommended: ['amenities','description','url','image','address'],
@@ -94,7 +92,6 @@ let topics = {
     },
     'drainpipes': {
         title: 'Drainpipes',
-        tilesetid: '4d92w2vu',
         minZoom: 3,
         recommended: ['carrying','material'],
         optional: ['mat_desc','form','height_mm','width_mm','built','ref','comment','operator'],
@@ -102,7 +99,6 @@ let topics = {
     },
     'footpaths': {
         title: 'Footpaths',
-        tilesetid: '3g5a81ox',
         minZoom: 3,
         recommended: ['paved','surf','width','wheelchair'],
         optional: ['surf_desc','operator','ref','bicycle'],
