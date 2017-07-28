@@ -51,7 +51,7 @@ module.exports = function (topic, mapid) {
         };
         return layer;
     }
-
+    /*
     // create a symbol based layer for a given datasource id.
     function mapPointLayer(id, icon, textColor, maxzoom, filter) {
         var layer = mapLayer(id, 'Point', filter);
@@ -93,7 +93,29 @@ module.exports = function (topic, mapid) {
 
         };
         return layer;
+    }*/
+
+    // create a symbol based layer for a given datasource id.
+    function mapPointLayer(id, icon, textColor, maxzoom, filter) {
+        var hue = 180;
+        var layer = mapLayer(id, 'Point', filter);
+        layer.type = 'circle';
+        layer.paint = {
+            'circle-color': `hsl(${hue}, 50%, 40%)`,
+            'circle-stroke-color': `hsl(${hue}, 50%, 20%)`,
+            'circle-stroke-width': 1,
+            'circle-stroke-opacity': 0.5,
+            
+            'circle-radius': {
+                stops: [
+                    [12, 2],
+                    [15,6]
+                ]
+            }
+        }
+        return layer;
     }
+
     /*
         Turn the set of available properties for a feature into an HTML description that highlights the level of compliance
         with the standard.

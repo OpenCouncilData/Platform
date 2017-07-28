@@ -40,6 +40,7 @@ function topicHtml(topic) {
             <div class="preview-map-legend">
                 <span class="preview-map-legend__good">&nbsp;</span>Good<br>
                 <span class="preview-map-legend__noncompliant">&nbsp;</span>Non-compliant<br>
+                <span class="preview-map-legend__notassessed">&nbsp;</span>Not assessed<br>
             </div>
         </div>
     </div>

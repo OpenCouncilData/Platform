@@ -82,7 +82,10 @@
     /*opacity:0.8;*/
 }
 
-.preview-map-legend__noncompliant,.preview-map-legend__good {
+.preview-map-legend__noncompliant,
+.preview-map-legend__good, 
+.preview-map-legend__notassessed 
+{
     display:inline-block;
     height:1em;
     width:1em;
@@ -92,6 +95,10 @@
 .preview-map-legend__noncompliant {
     background:hsl(10,80%,50%);
     border:1px solid hsl(10,100%,30%);
+}
+.preview-map-legend__notassessed {
+    background:hsl(180,80%,50%);
+    border:1px solid hsl(180,100%,30%);
 }
 .preview-map-legend__good {
     background:hsl(95,80%,50%);
