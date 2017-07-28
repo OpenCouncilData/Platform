@@ -5,6 +5,8 @@ Data is accessible through two APIs:
 - Cloudant, for querying, including geospatial querying.
 - Mapbox, for displaying directly on a map.
 
+The data is harvested directly from councils' open data platforms, which you can discover on the [Open Council Data Map](http://map.opencouncildata.org). Councils are encouraged to publish data conforming to the [Open Council Data Standards](http://standards.opencouncildata.org/) but not all datasets are compliant. You should look to the standards to understand the meaning of fields.
+
 ### CloudAnt 
 
 IBM's [CloudAnt](https://www.ibm.com/analytics/us/en/technology/cloud-data-services/cloudant/) is a NoSQL JSON database platform, based on [Apache CouchDB](http://couchdb.apache.org/). Being NoSQL means it is a collection of "documents" with attributes that can differ, rather than a strict table structure. (See [Cloudant Basics](https://console.bluemix.net/docs/services/Cloudant/basics/index.html#cloudant-basics).)
@@ -19,15 +21,20 @@ The Open Council Data features database contains one row (document) for every fe
 
 #### Basic queries
 
-You can query like this:
+In order to run a query, you need to know the following:
 
-```
-https://opencouncildata.cloudant.com/test1/_design/features/_search/topics?q=topic:garbage-collection-zones&include_docs=true
-```
+* The database with all features in it is called `test`. 
+* There is a [view](https://console.bluemix.net/docs/services/Cloudant/api/creating_views.html#views-mapreduce-) called `features` which returns every feature. 
+* Each feature has an attribute called `topic` which contains the topic id (shown next to the name of the topic, in this platform). 
+* There is an [index](https://console.bluemix.net/docs/services/Cloudant/api/design_documents.html#indexes) on that attribute, called `topics`. 
+
+You can thus fetch all features for a topic like this:
+
+`https://opencouncildata.cloudant.com/`**`test1`**`/_design/`**`features`**`/_search/`**`topics`**`?q=`**`topic`**`:`**_`garbage-collection-zones`_**`&include_docs=true`
 
 This returns 25 results by default, and a `bookmark` parameter that lets you retrieve the next set of results.
 
-The result looks like this. Comments added:
+The result looks like this (comments added):
 
 ```
 {
@@ -107,14 +114,18 @@ The result looks like this. Comments added:
 
 #### Spatial queries
   
-Very often, you will want to find 
+To find features near a given location, you can execute a spatial query, against one of the pre-defined spatial indexes.
 
-Find which dog walking zone a point is in:
+* The `geo` view contains all the spatial indexes.
+* The name of each spatial index matches the topic id.
 
-```
-  https://opencouncildata.cloudant.com/test1/_design/geo/_geo/dog-geo?lat=-38.17046&lon=144.35649&radius=0&include_docs=true
-```
+So, for instance, to find which dog-walking zone a point at (144.356, -38.170) might be within:
 
+`https://opencouncildata.cloudant.com/`**`test1`**`/_design/`**`geo`**`/_geo/`**`dog-walking-zones`**`?lat=`**`-38.1704`**`&lon=`**`144.356`**`&radius=0&include_docs=true`
+
+To find any public toilets within a 1000m radius of the same point:
+
+`https://opencouncildata.cloudant.com/`**`test1`**`/_design/`**`geo`**`/_geo/`**`public-toilets`**`?lat=`**`-38.170`**`&lon=`**`144.356`**`&radius=`**`1000`**`&include_docs=true`
 
 For more information about queries, see the [CloudAnt documentation](https://docs.cloudant.com/search.html#query-syntax).
 
@@ -123,11 +134,19 @@ For more information about queries, see the [CloudAnt documentation](https://doc
 
 Mapbox is a mapping platform used to create dynamic visualisations of large map datasets. Each topic has been uploaded to Mapbox as a separate [tileset](https://www.mapbox.com/help/define-tileset/), which are used to show the map previews. You could also display these tilesets on your own Mapbox maps, styled however you like. 
 
-Each tileset name matches its topic name, and is stored under the `opencouncildata` account. Hence, the tileset ID is `mapbox://opencouncildata.[topicname]` .
+* Each tileset name matches its topic name, and is stored under the `opencouncildata` account. Hence, the tileset ID is `mapbox://opencouncildata.[topicname]` .
+* Each tileset contains one layer, which is also the topic name.
 
-Each tileset contains one layer, which is also the topic name.
+You can use any library that can handle Mapbox vector tiles to access and display the data. That includes:
 
-For example, to add a layer of circles representing public toilets:
+* [Mapbox-GL-JS](https://www.mapbox.com/mapbox-gl-js/api/), a WebGL library with data visualisation features for web apps.
+* [Mapbox-GL Native](https://github.com/mapbox/mapbox-gl-native), libraries for native mobile and desktop apps.
+* [Mapbox-GL-Leaflet](https://github.com/mapbox/mapbox-gl-leaflet), an extension to the popular Leaflet library for Mapbox vector tiles.
+* [Many others](https://github.com/mapbox/awesome-vector-tiles).
+
+#### Mapbox-GL-JS
+
+Here is an example of adding a layer that represents public toilets, with circles, to an existing map object.
 
 ```
   map.addLayer({
@@ -144,4 +163,6 @@ For example, to add a layer of circles representing public toilets:
   })
 ```
 
-A complete example is here: https://codepen.io/stevebennett/pen/RZPyqR
+You can see a complete example is here: https://codepen.io/stevebennett/pen/RZPyqR
+
+For more information on using Mapbox, see the [Mapbox-GL-JS API](https://www.mapbox.com/mapbox-gl-js/api/). 

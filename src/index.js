@@ -23,11 +23,12 @@ function topicHtml(topic) {
     <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">\
     <div class="mdl-card mdl-cell mdl-cell--12-col">\
       <div class="mdl-card__supporting-text">\ 
-        <a name="${topic}"><h4>${topics[topic].title}</h4></a>\ 
+        <a name="${topic}"><h4>${topics[topic].title}</a><small> &nbsp; (<code>${topic}</code>)</small></h4>\ 
       </div>` +
     //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
     //
-    (topics[topic].standard ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: '') +
+    (topics[topic].standard ? `  <div class="standardlink">Open Council Data standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: '') +
+    //(topics[topic].standard ? `  <div class="standardlink">Topic ID: ${topic}</div>`: '') +
 
 /*    '  <div class="mdl-card__actions">' + 
     '    <a href="#" class="mdl-button">Map preview</a>' + 
@@ -148,7 +149,7 @@ function showFeatureCounts(featureData) {
         .data(def(topics[topic]._councilCounts,[]))
         .enter()
         .append('tr')
-        .html(d => '<td>' + d[0] + '</td><td>' + d[1] + '</td>');
+        .html(d => '<td>' + d[0].replace(/.*\//,'') + '</td><td>' + d[1] + '</td>');
     });
 }
 
