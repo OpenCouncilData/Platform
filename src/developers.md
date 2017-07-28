@@ -17,7 +17,7 @@ The Open Council Data features database contains one row (document) for every fe
 - use filters to find any feature with certain properties
 - use spatial indexes to run queries such as "which garbage collection zone is point X within", "what are the nearest 5 childcare centers to point X" and so on.
 
-[Cloudant query documentation](https://console.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#query).
+For more information on Cloudant queries, see the [Cloudant query documentation](https://console.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#query).
 
 #### Basic queries
 
@@ -113,8 +113,8 @@ The result looks like this (comments added):
 ```
 
 #### Spatial queries
-  
-To find features near a given location, you can execute a spatial query, against one of the pre-defined spatial indexes.
+
+Cloudant also supports geospatial querying, called "[Cloudant Geo](https://console.bluemix.net/docs/services/Cloudant/api/cloudant-geo.html#cloudant-geospatial)". For instance, to find features near a given location, you can use one the defined spatial indexes to execute a spatial query.
 
 * The `geo` view contains all the spatial indexes.
 * The name of each spatial index matches the topic id.
@@ -127,7 +127,11 @@ To find any public toilets within a 1000m radius of the same point:
 
 `https://opencouncildata.cloudant.com/`**`test1`**`/_design/`**`geo`**`/_geo/`**`public-toilets`**`?lat=`**`-38.170`**`&lon=`**`144.356`**`&radius=`**`1000`**`&include_docs=true`
 
-For more information about queries, see the [CloudAnt documentation](https://docs.cloudant.com/search.html#query-syntax).
+To find the nearest 5 childcare centres to a point at (143.8, -37.5), you can use the `g=POINT()` and `nearest=true` parameters:
+
+`https://opencouncildata.cloudant.com/test1/_design/geo/_geo/childcare-centres?g=POINT(143.8%20-37.5)&nearest=true&limit=5&include_docs=true`
+
+For more information about spatial queries, see the [Cloudant Geo documentation](https://console.bluemix.net/docs/services/Cloudant/api/cloudant-geo.html#cloudant-geospatial).
 
 
 ### Mapbox

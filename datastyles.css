@@ -212,3 +212,11 @@
     padding:0 1em;
 
 } 
+
+.mdl-card__supporting-text pre,
+.mdl-card__supporting-text code
+  {
+    background:hsl(200,98%,95%);
+    /*padding-left:0.5em;
+    padding-right:0.5em;*/
+}
