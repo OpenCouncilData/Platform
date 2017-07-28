@@ -13,7 +13,7 @@ IBM's [CloudAnt](https://www.ibm.com/analytics/us/en/technology/cloud-data-servi
 
 The Open Council Data features database contains one row (document) for every feature from every source dataset. You can:
 
-- access all attributes and geometry for any individual feature
+- access all attributes and geometry for any individual feature, in [GeoJSON format](http://geojson.org/).
 - use filters to find any feature with certain properties
 - use spatial indexes to run queries such as "which garbage collection zone is point X within", "what are the nearest 5 childcare centers to point X" and so on.
 
@@ -25,7 +25,7 @@ In order to run a query, you need to know the following:
 
 * The database with all features in it is called `test`. 
 * There is a [view](https://console.bluemix.net/docs/services/Cloudant/api/creating_views.html#views-mapreduce-) called `features` which returns every feature. 
-* Each feature has an attribute called `topic` which contains the topic id (shown next to the name of the topic, in this platform). 
+* Each feature in this view has an attribute called `topic` which contains the topic id (shown next to the name of the topic, in this platform). 
 * There is an [index](https://console.bluemix.net/docs/services/Cloudant/api/design_documents.html#indexes) on that attribute, called `topics`. 
 
 You can thus fetch all features for a topic like this:
