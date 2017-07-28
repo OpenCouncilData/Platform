@@ -17,15 +17,7 @@ The Open Council Data features database contains one row (document) for every fe
 
 [Cloudant query documentation](https://console.bluemix.net/docs/services/Cloudant/api/cloudant_query.html#query).
 
-#### Spatial queries
-  
-Find which dog walking zone a point is in:
-
-```
-  https://opencouncildata.cloudant.com/test1/_design/geo/_geo/dog-geo?lat=-38.17046&lon=144.35649&radius=0&include_docs=true
-```
-
-#### Non-spatial queries
+#### Basic queries
 
 You can query like this:
 
@@ -112,6 +104,17 @@ The result looks like this. Comments added:
     },
     // ... next feature below ...
 ```
+
+#### Spatial queries
+  
+Very often, you will want to find 
+
+Find which dog walking zone a point is in:
+
+```
+  https://opencouncildata.cloudant.com/test1/_design/geo/_geo/dog-geo?lat=-38.17046&lon=144.35649&radius=0&include_docs=true
+```
+
 
 For more information about queries, see the [CloudAnt documentation](https://docs.cloudant.com/search.html#query-syntax).
 

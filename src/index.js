@@ -70,23 +70,23 @@ function addTopicSections() {
 
 
     Object.keys(topics).forEach(topic => {
-        d3.select(`#${topic}-map`).on('click', () => previewMap(topic/*, topics[topic].mapid*/));
+        d3.select(`#${topic}-map`).on('click', () => previewMap(topic));
     });
 
     // Create the map preview in each newly created section
     //  Object.keys(topics).forEach(topic => { makeMap(topic/*, topics[topic].mapid*/); });
 
-    /* Not yet ready.
+    //Not yet ready.
     d3.select('main')
     .append('section')
     .classed('mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section', true)
     .html('<div class="mdl-card mdl-cell mdl-cell--12-col">' + 
         '  <div class="mdl-card__supporting-text">' + 
-        '    <a name="Developers"><h4>Developers</h4></a>' + 
+        '    <a name="developers"><h4>Getting started</h4></a>' + 
+        require('./developers.md') + // Through the unholy magic of browserify-markdown. 
         '  </div>' +
-        require('./developers.md') + 
         '</div>');
-    */
+    
 }
 
 
