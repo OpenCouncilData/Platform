@@ -44,6 +44,10 @@ module.exports = function (topic, mapid) {
             'line-color': `hsl(${hue}, 50%, 40%)`,
             'line-opacity': 0.9, // 1 for overlay layers?
             'line-width': 3
+        }
+        layer.layout = {
+            'line-cap': 'round',
+            'line-join': 'round'
         };
         return layer;
     }
