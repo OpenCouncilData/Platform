@@ -195,6 +195,7 @@ module.exports = function (topic, mapid) {
             minZoom: def(topics[topic].minZoom, 6), // uploaded Geojsons get converted into vector tiles with minzoom 6
             center: [145,-37]
         });
+        map.addControl(new mapboxgl.FullscreenControl());
 
         map.on('mousemove', e => {
             // TODO get layers list first so we don't query non-existent layers (causes console log spam)

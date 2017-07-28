@@ -34,11 +34,13 @@ function topicHtml(topic) {
     '  </div>' + */
     // extra div so that features sit alongside map
     `<div>
-    <div id="${topic}-map" class="preview-map not-loaded">
-        <div class="preview-map-placeholder">Click for preview map</div>
-        <div class="preview-map-legend">
-        <span class="preview-map-legend__good">&nbsp;</span>Good<br>
-        <span class="preview-map-legend__noncompliant">&nbsp;</span>Non-compliant<br>
+    <div class="preview-map-constrainer">
+        <div id="${topic}-map" class="preview-map not-loaded">
+            <div class="preview-map-placeholder">Click for preview map</div>
+            <div class="preview-map-legend">
+                <span class="preview-map-legend__good">&nbsp;</span>Good<br>
+                <span class="preview-map-legend__noncompliant">&nbsp;</span>Non-compliant<br>
+            </div>
         </div>
     </div>
     <div id="${topic}-featureinfo" class="feature-info"></div>
