@@ -35,7 +35,7 @@ let topics = {
     }, 
     'parking-zones': { 
         title: 'Parking zones', 
-        tilesetid: '1qthtzh7',
+        //tilesetid: '1qthtzh7',
         required: [ 'mode' ],
         recommended: [ 'updated', 'ref'],
         optional: [ 'start', 'end', 'days', 'minsmax', 'hourlyfee','onlyfor', 'notfor' ],
