@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node node_modules/budo/bin/cmd.js src/index.js:static/bundle.js --live -- -t [ babelify --presets [ es2015 ] ] -t [ browserify-markdown ]",
-    "build": "node node_modules/browserify/bin/cmd.js ./src/index.js -o static/bundle.js -t babelify"
+    "build": "node node_modules/browserify/bin/cmd.js ./src/index.js -o static/bundle.js -t babelify -t browserify-markdown"
   },
   "repository": {
     "type": "git",
