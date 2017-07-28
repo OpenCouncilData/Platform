@@ -23,11 +23,11 @@ function topicHtml(topic) {
     <section class="mdl-grid mdl-grid--no-spacing mdl-shadow--2dp topic-section">\
     <div class="mdl-card mdl-cell mdl-cell--12-col">\
       <div class="mdl-card__supporting-text">\ 
-        <a name="${topic}"><h4>${topics[topic].title}</h4></a>\
+        <a name="${topic}"><h4>${topics[topic].title}</h4></a>\ 
       </div>` +
     //`  <div class="standardlink"><a href="${topics[topic].standard}">Open Council Data standard</a></div>` +
     //
-    (topics[topic].standard ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: 'NAW')+
+    (topics[topic].standard ? `  <div class="standardlink">Standard: <a target="_blank" href="${topics[topic].standard}">${topics[topic].standard}</a></div>`: '') +
 
 /*    '  <div class="mdl-card__actions">' + 
     '    <a href="#" class="mdl-button">Map preview</a>' + 
